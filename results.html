@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Club Awards Results</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1, h2 { color: #3a3a3a; }
+  ul { list-style-type: none; padding-left: 0; }
+  li { padding: 3px 0; }
+</style>
+</head>
+<body>
+<h1>Book Club Award Results</h1>
+
+<div id="results"></div>
+
+<script>
+const votes = JSON.parse(localStorage.getItem('bookClubVotes')) || {};
+const resultsDiv = document.getElementById('results');
+
+if(Object.keys(votes).length === 0){
+  resultsDiv.textContent = "No votes submitted yet.";
+} else {
+  for(const award in votes){
+    const h2 = document.createElement('h2');
+    h2.textContent = award.replace(/_/g, ' ');
+    resultsDiv.appendChild(h2);
+
+    const ul = document.createElement('ul');
+    const sortedMembers = Object.entries(votes[award]).sort((a,b) => b[1]-a[1]); // Descending votes
+    sortedMembers.forEach(([member, count]) => {
+      const li = document.createElement('li');
+      li.textContent = `${member}: ${count} vote${count>1?'s':''}`;
+      ul.appendChild(li);
+    });
+    resultsDiv.appendChild(ul);
+  }
+}
+</script>
+</body>
+</html>
