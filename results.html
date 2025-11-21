@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book Club Awards Results</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+  body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
   h1, h2 { color: #3a3a3a; }
   ul { list-style-type: none; padding-left: 0; }
   li { padding: 3px 0; }
@@ -29,7 +29,7 @@ if(Object.keys(votes).length === 0){
     resultsDiv.appendChild(h2);
 
     const ul = document.createElement('ul');
-    const sortedMembers = Object.entries(votes[award]).sort((a,b) => b[1]-a[1]); // Descending votes
+    const sortedMembers = Object.entries(votes[award]).sort((a,b) => b[1]-a[1]);
     sortedMembers.forEach(([member, count]) => {
       const li = document.createElement('li');
       li.textContent = `${member}: ${count} vote${count>1?'s':''}`;
