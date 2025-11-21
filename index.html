@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Most Esteemed and Sacred Charter of the Literary Assembly</title>
-
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📚</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
   <style>
     body {
@@ -42,6 +40,24 @@
       border: 2px solid #d6d1c7;
       border-radius: 8px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .updated-date {
+      text-align: left;
+      font-style: italic;
+      color: #5a4e43;
+      margin-bottom: 20px;
+      margin-left: 5px;
+    }
+
+    /* Remove drop cap from updated-date */
+    .updated-date:first-letter {
+      font-size: 1em;
+      font-weight: normal;
+      float: none;
+      margin: 0;
+      line-height: normal;
+      color: #5a4e43;
     }
 
     .section {
@@ -113,8 +129,9 @@
   </header>
 
   <div class="container">
+    <p class="updated-date">Updated: November 23, 2024</p>
+
     <div class="section">
-      <p class="updated-date">Updated: November 26, 2024</p>
       <h2>Preamble</h2>
       <p>Let it be decreed, under the hallowed guidance of wisdom and civility, that the Sacred Circle of the Literary Assembly, an enclave of profound intellect and refined taste, shall henceforth abide by the principles enshrined within this most noble document, ensuring the continuity of its exalted purpose, the mutual edification and celebration of literature.</p>
     </div>
