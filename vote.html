@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Club Awards Voting</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1, h2 { color: #3a3a3a; }
+  select, button { font-size: 16px; padding: 5px; margin: 5px 0 20px; width: 100%; }
+</style>
+</head>
+<body>
+<h1>Vote for the Literary Assembly Awards</h1>
+
+<form id="voteForm">
+
+  <h2>The Laureate of Literary Dedication</h2>
+  <select name="Laureate_of_Literary_Dedication">
+    <option value="">Select a member</option>
+    <option>Alexander Milani</option>
+    <option>Andrew Warren</option>
+    <option>Brett</option>
+    <option>Daniel Frankel</option>
+    <option>Jackson</option>
+    <option>Jeff Barletta</option>
+    <option>Marc Webster</option>
+    <option>Mark Suski</option>
+    <option>Michael Shindler</option>
+    <option>Ran Sommer</option>
+    <option>Sanjeeva</option>
+    <option>Shaun Stander</option>
+    <option>Shea Lindenberg</option>
+    <option>Shea Thorne</option>
+    <option>Simon Tong</option>
+    <option>Spencer Gudewill</option>
+    <option>Steve Lam</option>
+    <option>Wes</option>
+    <option>Zack</option>
+    <option>Shane Golden</option>
+  </select>
+
+  <h2>The Oracle of Insight</h2>
+  <select name="Oracle_of_Insight">
+    <option value="">Select a member</option>
+    <option>Alexander Milani</option>
+    <option>Andrew Warren</option>
+    <option>Brett</option>
+    <option>Daniel Frankel</option>
+    <option>Jackson</option>
+    <option>Jeff Barletta</option>
+    <option>Marc Webster</option>
+    <option>Mark Suski</option>
+    <option>Michael Shindler</option>
+    <option>Ran Sommer</option>
+    <option>Sanjeeva</option>
+    <option>Shaun Stander</option>
+    <option>Shea Lindenberg</option>
+    <option>Shea Thorne</option>
+    <option>Simon Tong</option>
+    <option>Spencer Gudewill</option>
+    <option>Steve Lam</option>
+    <option>Wes</option>
+    <option>Zack</option>
+    <option>Shane Golden</option>
+  </select>
+
+  <!-- Repeat for all awards (serious, funny-desired, funny-avoid) -->
+  
+  <button type="submit">Submit Votes</button>
+</form>
+
+<script>
+document.getElementById('voteForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  let votes = JSON.parse(localStorage.getItem('bookClubVotes')) || {};
+  
+  for (const [award, member] of formData.entries()){
+    if(member) {
+      if(!votes[award]) votes[award] = {};
+      votes[award][member] = (votes[award][member] || 0) + 1;
+    }
+  }
+
+  localStorage.setItem('bookClubVotes', JSON.stringify(votes));
+  alert('Votes submitted! Check the results page to see totals.');
+});
+</script>
+</body>
+</html>
