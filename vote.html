@@ -7,6 +7,7 @@
 <style>
   body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
   h1, h2 { color: #3a3a3a; }
+  p { font-style: italic; color: #555; margin-top: -10px; margin-bottom: 10px; }
   select, button { font-size: 16px; padding: 5px; margin: 5px 0 20px; width: 100%; }
 </style>
 </head>
@@ -16,31 +17,68 @@
 <form id="voteForm">
 
 <h2>The Laureate of Literary Dedication</h2>
-<select name="Laureate_of_Literary_Dedication" class="memberSelect">
-  <option value="">Select a member</option>
-</select>
+<p>For the member who read the most books this year.</p>
+<select name="Laureate_of_Literary_Dedication" class="memberSelect"><option value="">Select a member</option></select>
 
 <h2>The Oracle of Insight</h2>
-<select name="Oracle_of_Insight" class="memberSelect">
-  <option value="">Select a member</option>
-</select>
+<p>For the member who consistently provides the most thoughtful insights and discussion points.</p>
+<select name="Oracle_of_Insight" class="memberSelect"><option value="">Select a member</option></select>
 
 <h2>The Discerned Selector of Tomes</h2>
-<select name="Discerned_Selector_of_Tomes" class="memberSelect">
-  <option value="">Select a member</option>
-</select>
+<p>For the member whose book suggestions always spark fascinating conversations.</p>
+<select name="Discerned_Selector_of_Tomes" class="memberSelect"><option value="">Select a member</option></select>
 
 <h2>The Pillar of Attendance</h2>
-<select name="Pillar_of_Attendance" class="memberSelect">
-  <option value="">Select a member</option>
-</select>
+<p>For the member who never misses a meeting and shows up ready to engage.</p>
+<select name="Pillar_of_Attendance" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Sage of Sagacity</h2>
+<p>For the member whose literary wisdom enlightens the assembly.</p>
+<select name="Sage_of_Sagacity" class="memberSelect"><option value="">Select a member</option></select>
 
 <h2>The Social Butterfly of the Assembly</h2>
-<select name="Social_Butterfly" class="memberSelect">
-  <option value="">Select a member</option>
-</select>
+<p>For the member who is most here for the socializing and camaraderie.</p>
+<select name="Social_Butterfly" class="memberSelect"><option value="">Select a member</option></select>
 
-<!-- Add more awards as needed with class="memberSelect" -->
+<h2>The Undaunted Explorer of New Genres</h2>
+<p>For the member who ventures into new genres with gusto and curiosity.</p>
+<select name="Undaunted_Explorer" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Stealthy Scholar</h2>
+<p>For the member who quietly contributes with brilliant comments no one sees coming.</p>
+<select name="Stealthy_Scholar" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Magnanimous Host’s Companion</h2>
+<p>For the member who always helps make meetings enjoyable and hospitable.</p>
+<select name="Magnanimous_Host" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Wit of the Written Word</h2>
+<p>For the member whose clever comments or jokes keep everyone entertained.</p>
+<select name="Wit_of_the_Written_Word" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Tome-Aversion Trophy</h2>
+<p>For the member who read the fewest books this year.</p>
+<select name="Tome_Aversion" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Flex Guest Enthusiast</h2>
+<p>For the member who always brings the most interesting flex guests.</p>
+<select name="Flex_Guest_Enthusiast" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Perennial Procrastinator of Proposals</h2>
+<p>For the member who always submits book suggestions at the last minute.</p>
+<select name="Perennial_Procrastinator" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Silent Sentinel</h2>
+<p>For the member who observes quietly and lets others do the talking.</p>
+<select name="Silent_Sentinel" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Splitwise Saboteur</h2>
+<p>For the member who never quite remembers to settle their Splitwise balance.</p>
+<select name="Splitwise_Saboteur" class="memberSelect"><option value="">Select a member</option></select>
+
+<h2>The Misguided Critic</h2>
+<p>For the member whose critiques are always… creative, even if sometimes wrong.</p>
+<select name="Misguided_Critic" class="memberSelect"><option value="">Select a member</option></select>
 
 <button type="submit">Submit Votes</button>
 </form>
@@ -70,7 +108,7 @@ const members = [
   "Zack"
 ];
 
-// Populate all select dropdowns
+// Populate all select dropdowns dynamically
 document.querySelectorAll('.memberSelect').forEach(select => {
   members.forEach(member => {
     const option = document.createElement('option');
