@@ -4,42 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Most Esteemed and Sacred Charter of the Literary Assembly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: #f7f5ef;
+      background: #f6f2e9;
       color: #2c2c2c;
-      font-family: Georgia, 'Times New Roman', serif;
-      line-height: 1.7;
+      font-family: 'Cardo', Georgia, serif;
+      line-height: 1.75;
     }
 
     header {
-      background: #e6dfd3;
-      padding: 50px 20px;
+      background: #e9e1d0;
+      padding: 60px 20px;
       text-align: center;
-      border-bottom: 3px solid #c8bfae;
+      border-bottom: 4px solid #c8bfae;
+      box-shadow: inset 0 -3px 0 #d4cbb7;
     }
 
     header h1 {
-      font-size: 2.8rem;
+      font-family: 'MedievalSharp', cursive;
+      font-size: 3rem;
       margin: 0;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      color: #4b3f2f;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
 
     .container {
       max-width: 900px;
       margin: 50px auto;
-      padding: 0 20px;
+      padding: 30px 25px;
       background: #ffffff;
-      border: 1px solid #d6d1c7;
-      border-radius: 6px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      border: 2px solid #d6d1c7;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
     .section {
-      padding: 40px 30px;
-      border-bottom: 1px solid #ece8e0;
+      padding: 35px 20px;
+      border-bottom: 1px solid #ece5dc;
     }
 
     .section:last-child {
@@ -48,29 +53,55 @@
 
     h2 {
       margin-top: 0;
-      font-size: 1.9rem;
+      font-size: 2rem;
       color: #4a3f35;
       text-align: center;
       letter-spacing: 0.5px;
+      font-family: 'Cardo', serif;
     }
 
     h3 {
       font-size: 1.4rem;
-      margin-top: 40px;
+      margin-top: 35px;
       color: #5a4e43;
       letter-spacing: 0.3px;
     }
 
     p {
-      margin: 15px 0;
-      font-size: 1.05rem;
+      margin: 16px 0;
+      font-size: 1.1rem;
+      text-align: justify;
+    }
+
+    p:first-letter {
+      font-size: 2.2rem;
+      font-weight: bold;
+      float: left;
+      margin-right: 6px;
+      line-height: 1;
+      color: #6b4f3a;
     }
 
     footer {
       text-align: center;
       padding: 30px 20px;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: #6a6a6a;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 2.2rem;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
