@@ -7,37 +7,71 @@
 <style>
   body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
   h1, h2 { color: #3a3a3a; }
+  p { font-style: italic; color: #555; margin-top: -10px; margin-bottom: 10px; }
   ul { list-style-type: none; padding-left: 0; }
-  li { padding: 3px 0; }
+  li { margin-bottom: 5px; }
 </style>
 </head>
 <body>
-<h1>Book Club Award Results</h1>
+<h1>Book Club Awards Results</h1>
 
 <div id="results"></div>
 
 <script>
+// Award descriptions (same as vote page)
+const awardDescriptions = {
+  "Laureate_of_Literary_Dedication": "For the member who read the most books this year.",
+  "Oracle_of_Insight": "For the member who consistently provides the most thoughtful insights and discussion points.",
+  "Discerned_Selector_of_Tomes": "For the member whose book suggestions always spark fascinating conversations.",
+  "Pillar_of_Attendance": "For the member who never misses a meeting and shows up ready to engage.",
+  "Sage_of_Sagacity": "For the member whose literary wisdom enlightens the assembly.",
+  "Social_Butterfly": "For the member who is most here for the socializing and camaraderie.",
+  "Undaunted_Explorer": "For the member who ventures into new genres with gusto and curiosity.",
+  "Stealthy_Scholar": "For the member who quietly contributes with brilliant comments no one sees coming.",
+  "Magnanimous_Host": "For the member who always helps make meetings enjoyable and hospitable.",
+  "Wit_of_the_Written_Word": "For the member whose clever comments or jokes keep everyone entertained.",
+  "Tome_Aversion": "For the member who read the fewest books this year.",
+  "Flex_Guest_Enthusiast": "For the member who always brings the most interesting flex guests.",
+  "Perennial_Procrastinator": "For the member who always submits book suggestions at the last minute.",
+  "Silent_Sentinel": "For the member who observes quietly and lets others do the talking.",
+  "Splitwise_Saboteur": "For the member who never quite remembers to settle their Splitwise balance.",
+  "Misguided_Critic": "For the member whose critiques are always… creative, even if sometimes wrong."
+};
+
+// Load votes from localStorage
 const votes = JSON.parse(localStorage.getItem('bookClubVotes')) || {};
 const resultsDiv = document.getElementById('results');
 
-if(Object.keys(votes).length === 0){
-  resultsDiv.textContent = "No votes submitted yet.";
-} else {
-  for(const award in votes){
-    const h2 = document.createElement('h2');
-    h2.textContent = award.replace(/_/g, ' ');
-    resultsDiv.appendChild(h2);
+for(const award in awardDescriptions){
+  const awardDiv = document.createElement('div');
+  
+  const title = document.createElement('h2');
+  title.textContent = award.replace(/_/g, ' ');
+  awardDiv.appendChild(title);
+  
+  const description = document.createElement('p');
+  description.textContent = awardDescriptions[award];
+  awardDiv.appendChild(description);
 
-    const ul = document.createElement('ul');
+  const list = document.createElement('ul');
+  if(votes[award]){
+    // Sort members by votes descending
     const sortedMembers = Object.entries(votes[award]).sort((a,b) => b[1]-a[1]);
     sortedMembers.forEach(([member, count]) => {
       const li = document.createElement('li');
-      li.textContent = `${member}: ${count} vote${count>1?'s':''}`;
-      ul.appendChild(li);
+      li.textContent = `${member}: ${count} vote${count > 1 ? 's' : ''}`;
+      list.appendChild(li);
     });
-    resultsDiv.appendChild(ul);
+  } else {
+    const li = document.createElement('li');
+    li.textContent = 'No votes yet';
+    list.appendChild(li);
   }
+
+  awardDiv.appendChild(list);
+  resultsDiv.appendChild(awardDiv);
 }
 </script>
+
 </body>
 </html>
