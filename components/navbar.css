@@ -1,0 +1,71 @@
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #1e1e2f;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+#hamburgerBtn {
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#logo {
+  margin-left: 1rem;
+  font-size: 1.5rem;
+}
+
+#pageTitle {
+  margin-left: 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+#logoutBtn {
+  background: #e94b3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+#logoutBtn:hover {
+  opacity: 0.9;
+}
+
+/* Hamburger menu */
+#hamburgerMenu {
+  display: none;
+  position: fixed;
+  top: 60px; /* adjust based on navbar height */
+  left: 0;
+  width: 200px;
+  height: calc(100% - 60px);
+  background: #2b2b3f;
+  padding: 1rem;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+#hamburgerMenu a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  margin: 0.5rem 0;
+}
+
+#hamburgerMenu a:hover {
+  text-decoration: underline;
+}
