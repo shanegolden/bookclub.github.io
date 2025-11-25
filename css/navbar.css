@@ -1,77 +1,59 @@
-#mainNavbar {
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #4f46e5;
+  color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1e1e2f;
-  color: white;
-  padding: 1rem;
-  position: fixed;
-  top: 0;
-  width: 100%;
+  padding: 1rem 2rem;
   z-index: 1000;
-  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem; /* books emoji and page title closer to hamburger */
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-#hamburgerBtn {
-  font-size: 1.2rem;
+.hamburger-btn {
+  font-size: 1.5rem;
   background: none;
   border: none;
   color: white;
   cursor: pointer;
 }
 
-#logo {
-  font-size: 1.2rem;
-  margin-left: 0;
+.hamburger-menu {
+  position: absolute;
+  top: 60px;
+  right: 2rem;
+  background: white;
+  color: black;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
 }
 
-#pageTitle {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-#logoutBtn {
-  background: #e94b3c;
-  color: white;
+.hamburger-menu a, .hamburger-menu button {
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+  color: black;
   border: none;
-  border-radius: 5px;
-  padding: 0.5rem 1rem;
+  background: none;
+  text-align: left;
   cursor: pointer;
 }
 
-#logoutBtn:hover {
-  opacity: 0.9;
+.hamburger-menu a:hover, .hamburger-menu button:hover {
+  background: #e0e7ff;
 }
 
-#hamburgerMenu {
-  display: none;
-  position: fixed;
-  top: 60px;
-  left: 0;
-  width: 200px;
-  height: calc(100% - 60px);
-  background: #2b2b3f;
-  padding: 1rem;
-  overflow-y: auto;
-  z-index: 999;
-}
-
-#hamburgerMenu a {
-  display: block;
-  color: white;
-  text-decoration: none;
-  margin: 0.5rem 0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-#hamburgerMenu a.active {
-  background: #4a90e2;
+.hamburger-menu a.active {
   font-weight: bold;
+  color: #4f46e5;
 }
