@@ -5,16 +5,12 @@
     <span id="pageTitle">Page</span>
   </div>
 
-  <div class="navbar-right" id="navbarRight">
-    <button id="logoutBtn" class="btn logout-btn">Logout</button>
-    <!-- Log in button will be inserted dynamically here -->
-  </div>
-
   <div id="hamburgerMenu" class="hamburger-menu" style="display: none;">
     <a href="/index.html">Home</a>
     <a href="/dashboard.html">Dashboard</a>
     <a href="/charter.html">Charter</a>
     <a id="adminNavItem" href="/admin.html" style="display:none;">Admin</a>
+    <button id="logoutBtn" class="btn logout-btn">Logout</button>
   </div>
 </nav>
 
@@ -28,14 +24,13 @@
     background: #4f46e5;
     color: white;
     display: flex;
-    justify-content: space-between; /* left + right sections */
+    justify-content: flex-start;
     align-items: center;
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 2rem;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
-  /* Left section */
   .navbar-left {
     display: flex;
     align-items: center;
@@ -56,30 +51,10 @@
     cursor: pointer;
   }
 
-  /* Right section */
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .navbar-right a,
-  .navbar-right button {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.3rem 0.5rem;
-  }
-
-  /* Hamburger menu */
   .hamburger-menu {
     position: absolute;
     top: 60px;
-    left: 1.5rem;
+    left: 2rem;
     background: white;
     color: black;
     border-radius: 8px;
@@ -89,18 +64,29 @@
     min-width: 160px;
   }
 
-  .hamburger-menu a {
+  .hamburger-menu a,
+  .hamburger-menu button {
     padding: 0.8rem 1rem;
     text-decoration: none;
     color: black;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
   }
 
-  .hamburger-menu a:hover {
+  .hamburger-menu a:hover,
+  .hamburger-menu button:hover {
     background: #e0e7ff;
   }
 
   .hamburger-menu a.active {
     font-weight: bold;
     color: #4f46e5;
+  }
+
+  .logout-btn {
+    width: 100%;
+    text-align: left;
   }
 </style>
