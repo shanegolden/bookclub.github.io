@@ -15,12 +15,7 @@ export async function loadNavbar(activePage, isAdmin = false) {
     return;
   }
 
-  const navbarLeft = navbarContainer.querySelector(".navbar-left");
-  const navbarRight = navbarContainer.querySelector(".navbar-right");
-  const hamburgerMenu = navbarContainer.querySelector("#hamburgerMenu");
-  const hamburgerBtn = navbarContainer.querySelector("#hamburgerBtn");
-
-  // Highlight active page link
+  // Highlight active page
   navbarContainer.querySelectorAll("#hamburgerMenu a").forEach(a => {
     if (a.textContent.trim() === activePage) a.classList.add("active");
   });
@@ -35,7 +30,9 @@ export async function loadNavbar(activePage, isAdmin = false) {
   const pageTitleSpan = navbarContainer.querySelector("#pageTitle");
   if (pageTitleSpan) pageTitleSpan.textContent = activePage;
 
-  // Hamburger toggle
+  // Hamburger menu toggle
+  const hamburgerBtn = navbarContainer.querySelector("#hamburgerBtn");
+  const hamburgerMenu = navbarContainer.querySelector("#hamburgerMenu");
   if (hamburgerBtn && hamburgerMenu) {
     hamburgerBtn.addEventListener("click", () => {
       hamburgerMenu.style.display = hamburgerMenu.style.display === "none" ? "flex" : "none";
@@ -43,45 +40,48 @@ export async function loadNavbar(activePage, isAdmin = false) {
   }
 
   const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
-    navbarRight.innerHTML = ""; // clear buttons
+  const navbarRight = navbarContainer.querySelector("#navbarRight");
 
-    const isHomePage = window.location.pathname.endsWith("index.html") || window.location.pathname === "/";
+  onAuthStateChanged(auth, (user) => {
+    const logoutBtn = navbarContainer.querySelector("#logoutBtn");
 
     if (user) {
-      // Logged in: show logout button
-      const logoutBtn = document.createElement("button");
-      logoutBtn.textContent = "Logout";
-      logoutBtn.className = "logout-btn";
-      logoutBtn.addEventListener("click", async () => {
-        try { await signOut(auth); window.location.href = "./login.html"; }
-        catch(e){ console.error("Logout failed", e); }
-      });
-      navbarRight.appendChild(logoutBtn);
-      navbarLeft.style.display = "flex"; // always show left for logged-in users
-    } else {
-      // Logged out: show login button
-      const loginBtn = document.createElement("a");
-      loginBtn.href = "./login.html";
-      loginBtn.id = "loginBtn";
-      loginBtn.textContent = "Log In";
-      loginBtn.style.color = "white";
-      loginBtn.style.fontWeight = "bold";
-      loginBtn.style.textDecoration = "none";
-      
-      navbarRight.appendChild(loginBtn);
+      // Logged in: show logout, hide login
+      if (logoutBtn) logoutBtn.style.display = "block";
 
-      // Homepage special layout
-      const isHomePage = window.location.pathname.endsWith("index.html") || window.location.pathname === "/";
-      if (isHomePage) {
-        navbarLeft.style.display = "none"; // hide hamburger+title
-        loginBtn.style.position = "absolute";
-        loginBtn.style.top = "1rem";
-        loginBtn.style.right = "2rem";
-      } else {
-        navbarLeft.style.display = "flex"; // show normal navbar on other pages
-        loginBtn.style.position = "static"; // reset
+      const loginBtn = navbarContainer.querySelector("#loginBtn");
+      if (loginBtn) loginBtn.remove();
+    } else {
+      // Logged out: hide logout
+      if (logoutBtn) logoutBtn.style.display = "none";
+
+      // Add login button if it doesn't exist
+      if (!navbarContainer.querySelector("#loginBtn")) {
+        const loginBtn = document.createElement("a");
+        loginBtn.href = "./login.html";
+        loginBtn.id = "loginBtn";
+        loginBtn.textContent = "Log In";
+        navbarRight.appendChild(loginBtn);
+      }
+
+      // Special case: on homepage, hide hamburger menu
+      if (window.location.pathname.endsWith("index.html")) {
+        hamburgerBtn.style.display = "none";
+        if (hamburgerMenu) hamburgerMenu.style.display = "none";
       }
     }
   });
+
+  // Logout button click
+  const logoutBtn = navbarContainer.querySelector("#logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "./login.html";
+      } catch (e) {
+        console.error("Logout failed:", e);
+      }
+    });
+  }
 }
