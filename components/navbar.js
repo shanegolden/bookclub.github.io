@@ -11,11 +11,13 @@ export function loadNavbar(activePage, isAdmin = false) {
   }).join("");
 
   navbarContainer.innerHTML = `
-    <header style="display:flex; align-items:center; background:#1e1e2f; color:white; padding:0.5rem 1rem; gap:1rem;">
-      <button id="hamburgerBtn" style="font-size:1.2rem; background:none; border:none; color:white; cursor:pointer;">☰</button>
-      <img src="https://via.placeholder.com/40x40?text=📚" alt="Book Icon" style="width:40px; height:40px; object-fit:cover;">
-      <span id="activePageName" style="font-size:1.2rem;">${activePage}</span>
-      <div style="margin-left:auto;">
+    <header style="display:flex; align-items:center; justify-content:space-between; background:#1e1e2f; color:white; padding:0.5rem 1rem;">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <button id="hamburgerBtn" style="font-size:1.2rem; background:none; border:none; color:white; cursor:pointer;">☰</button>
+        <img src="https://via.placeholder.com/40x40?text=📚" alt="Book Icon" style="width:40px; height:40px; object-fit:cover;">
+        <span id="activePageName" style="font-size:1.2rem;">${activePage}</span>
+      </div>
+      <div>
         <button id="logoutBtn" style="background:#e94b3c; color:white; border:none; padding:0.3rem 0.6rem; border-radius:5px; cursor:pointer;">Logout</button>
       </div>
     </header>
