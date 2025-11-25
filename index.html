@@ -21,21 +21,22 @@
 
 <!-- Home content -->
 <div class="container">
-  <h2>Currently Reading...</h2>
+  <h2>Most Recent Winning Book</h2>
   <div id="winnerDisplay" class="winner-display">Loading...</div>
 </div>
 
 <!-- Navbar JS -->
 <script type="module">
 import { loadNavbar } from './components/load-navbar.js';
-loadNavbar("Home", false);
+loadNavbar("Home", false); // Home active, no admin menu
 </script>
 
-<!-- THE EXACT SAME WINNER CODE FROM DASHBOARD -->
+<!-- Firebase + Winner Fetch JS -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, limit, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+// Firebase config (same as dashboard)
 const firebaseConfig = { 
   apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
   authDomain:"book-club-f42b1.firebaseapp.com", 
@@ -48,48 +49,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let currentPeriod = null;
-
-// Listen for the latest submission period in real time
-const periodsRef = collection(db, "submissionPeriods");
-onSnapshot(query(periodsRef, orderBy("createdAt", "desc"), limit(1)), snapshot => {
-  const periods = snapshot.docs.map(d => ({ id:d.id, ...d.data() }));
-  currentPeriod = periods[0] || null;
-  updateWinnerDisplay();
-});
-
-// Listen for books in the current period in real time
-function updateWinnerDisplay() {
+async function loadWinner() {
   const container = document.getElementById("winnerDisplay");
-  if (!currentPeriod) { container.innerText = "No submission periods yet."; return; }
-
-  const booksRef = collection(db, "books");
-  const q = query(booksRef, where("periodId", "==", currentPeriod.id));
-  
-  onSnapshot(q, async snapshot => {
-    const books = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    container.innerHTML = "";
-
-    if (books.length === 0 || books.every(b => !b.votes?.length)) {
+  try {
+    const winnerDoc = await getDoc(doc(db, "public", "winner"));
+    if(!winnerDoc.exists()) {
       container.innerText = "No winner yet";
       return;
     }
-
-    const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
-
-    let details = {};
-    try {
-      const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
-      const data = await res.json();
-      if (data.docs && data.docs.length > 0) {
-        const doc = data.docs[0];
-        details.year = doc.first_publish_year || "Unknown";
-        details.pages = doc.number_of_pages_median || "Unknown";
-        details.description = doc.subtitle || doc.text?.slice(0,200)?.join(" ") || "No description available";
-      }
-    } catch {
-      details = { year:"Unknown", pages:"Unknown", description:"No description available" };
-    }
+    const winner = winnerDoc.data();
 
     const div = document.createElement("div");
     div.className = "submission-card";
@@ -98,15 +66,22 @@ function updateWinnerDisplay() {
       <div class="book-info">
         <h3>${winner.title}</h3>
         <p><strong>Author:</strong> ${winner.author}</p>
-        <p><strong>Year Published:</strong> ${details.year}</p>
-        <p><strong>Pages:</strong> ${details.pages}</p>
-        <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
-        <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
+        <p><strong>Year Published:</strong> ${winner.year}</p>
+        <p><strong>Pages:</strong> ${winner.pages}</p>
+        <p style="font-size:0.9rem;"><strong>Description:</strong> ${winner.description}</p>
+        <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes}</p>
       </div>
     `;
+    container.innerHTML = "";
     container.appendChild(div);
-  });
+  } catch(err) {
+    console.error("Error fetching public winner:", err);
+    container.innerText = "Failed to load winner";
+  }
 }
+
+// Load the winner on page load
+loadWinner();
 </script>
 
 </body>
