@@ -1,3 +1,19 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <button id="hamburgerBtn" class="hamburger-btn">☰</button>
+    <span class="books-emoji">📚</span>
+    <span id="pageTitle">Page</span>
+    <!-- Login/Logout button will be dynamically inserted here by load-navbar.js -->
+  </div>
+
+  <div id="hamburgerMenu" class="hamburger-menu" style="display: none;">
+    <a href="/index.html">Home</a>
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/charter.html">Charter</a>
+    <a id="adminNavItem" href="/admin.html" style="display:none;">Admin</a>
+  </div>
+</nav>
+
 <style>
   /* Navbar container */
   .navbar {
@@ -8,32 +24,24 @@
     background: #4f46e5;
     color: white;
     display: flex;
-    justify-content: space-between; /* left vs right */
+    justify-content: flex-start;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 1rem 2rem;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    flex-wrap: wrap; /* allow wrapping on small screens */
   }
 
+  /* Left side of navbar: hamburger + emoji + title + login/logout button */
   .navbar-left {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: bold;
+    width: 100%;
   }
 
+  /* Books emoji */
   .books-emoji {
     font-size: 1.4rem;
-  }
-
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-left: auto; /* push right */
-    flex-wrap: wrap; /* wrap if necessary */
   }
 
   /* Hamburger button */
@@ -49,15 +57,14 @@
   .hamburger-menu {
     position: absolute;
     top: 60px;
-    left: 1rem;
+    left: 2rem;
     background: white;
     color: black;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    min-width: 140px;
-    z-index: 1100;
+    min-width: 160px;
   }
 
   .hamburger-menu a,
@@ -82,27 +89,34 @@
     color: #4f46e5;
   }
 
-  /* Logout/Login buttons styling */
-  .logout-btn, #loginBtn {
+  /* Login/Logout button styling inside navbar-left */
+  .navbar-left a#loginBtn,
+  .navbar-left button#logoutBtn {
+    margin-left: auto; /* push button to far right */
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    background: none;
+    border: none;
     cursor: pointer;
-    white-space: nowrap; /* prevents text from wrapping */
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
   }
 
-  /* Responsive adjustments */
+  .navbar-left a#loginBtn:hover,
+  .navbar-left button#logoutBtn:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile responsiveness */
   @media (max-width: 600px) {
-    .navbar-left, .navbar-right {
-      width: 100%;
-      justify-content: space-between;
+    .navbar {
+      padding: 1rem;
     }
-
-    .navbar-right {
-      margin-left: 0;
-      margin-top: 0.3rem;
-    }
-
     .hamburger-menu {
-      left: 0.5rem;
-      min-width: 120px;
+      left: 1rem;
+      top: 50px;
     }
   }
 </style>
