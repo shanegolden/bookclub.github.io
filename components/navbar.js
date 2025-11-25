@@ -2,12 +2,11 @@
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 async function loadNavbar(activePage = "Home") {
-  // Fetch navbar.html and inject it into the page
+  // Fetch and inject navbar
   const resp = await fetch('/navbar.html');
   const navbarHtml = await resp.text();
   document.body.insertAdjacentHTML('afterbegin', navbarHtml);
 
-  // Set active page title
   document.getElementById("pageTitle").innerText = activePage;
 
   const auth = getAuth();
@@ -28,7 +27,7 @@ async function loadNavbar(activePage = "Home") {
     }
   });
 
-  // Logout button
+  // Logout
   logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
     window.location.href = "/login.html";
@@ -36,13 +35,12 @@ async function loadNavbar(activePage = "Home") {
 
   // Show admin link only for admins
   onAuthStateChanged(auth, user => {
-    if (!user) return window.location.href = "/login.html";
-    // Replace this with your actual admin check
+    if (!user) return window.location.href="/login.html";
+    // Replace with your real admin check
     if (user.email === "admin@example.com") {
       adminNavItem.style.display = "block";
     }
   });
 }
 
-// Export for easy use in HTML
 export { loadNavbar };
