@@ -1,71 +1,36 @@
-// Function to load the navbar
-export function loadNavbar(activePage = "Home", isAdmin = false) {
-  // Create header if it doesn't exist
-  let header = document.querySelector('header');
-  if(!header) {
-    header = document.createElement('header');
-    document.body.prepend(header);
-  }
-  header.innerHTML = `
-    <button id="hamburgerBtn">☰</button>
-    <span id="logo">📚</span>
-    <span id="pageTitle">${activePage}</span>
-    <button id="logoutBtn" class="btn-danger">Logout</button>
+export function loadNavbar(activePage, isAdmin = false) {
+  const navbarContainer = document.getElementById("navbarContainer") || document.getElementById("navbar");
+  if (!navbarContainer) return;
+
+  const pages = ["Home", "Dashboard", "Charter"];
+  if (isAdmin) pages.push("Admin");
+
+  const pageLinks = pages.map(page => {
+    const activeClass = page === activePage ? "active" : "";
+    return `<a href="/${page.toLowerCase()}" class="${activeClass}">${page}</a>`;
+  }).join("");
+
+  navbarContainer.innerHTML = `
+    <header style="display:flex; align-items:center; background:#1e1e2f; color:white; padding:0.5rem 1rem; gap:1rem;">
+      <button id="hamburgerBtn" style="font-size:1.2rem; background:none; border:none; color:white; cursor:pointer;">☰</button>
+      <img src="https://via.placeholder.com/40x40?text=📚" alt="Book Icon" style="width:40px; height:40px; object-fit:cover;">
+      <span id="activePageName" style="font-size:1.2rem;">${activePage}</span>
+      <div style="margin-left:auto;">
+        <button id="logoutBtn" style="background:#e94b3c; color:white; border:none; padding:0.3rem 0.6rem; border-radius:5px; cursor:pointer;">Logout</button>
+      </div>
+    </header>
+    <nav id="hamburgerMenu" style="display:none; background:#2b2b3f; padding:1rem;">
+      ${pageLinks}
+    </nav>
   `;
 
-  // Create hamburger menu if it doesn't exist
-  let hamburgerMenu = document.getElementById('hamburgerMenu');
-  if(!hamburgerMenu) {
-    hamburgerMenu = document.createElement('div');
-    hamburgerMenu.id = 'hamburgerMenu';
-    document.body.appendChild(hamburgerMenu);
-  }
-
-  // Populate menu items
-  const menuItems = ["Home", "Dashboard", "Charter"];
-  if(isAdmin) menuItems.push("Admin");
-
-  hamburgerMenu.innerHTML = menuItems.map(item => {
-    const isActive = item.toLowerCase() === activePage.toLowerCase() ? "active" : "";
-    return `<a href="/${item.toLowerCase()}" class="${isActive}">${item}</a>`;
-  }).join('');
-
-  // Toggle hamburger menu
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  hamburgerBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if(hamburgerMenu.style.display === 'block') hamburgerMenu.style.display = 'none';
-    else hamburgerMenu.style.display = 'block';
+  document.getElementById("hamburgerBtn").addEventListener("click", () => {
+    const menu = document.getElementById("hamburgerMenu");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
   });
 
-  // Auto-hide menu when clicking outside
-  document.addEventListener('click', (e) => {
-    if(!hamburgerMenu.contains(e.target) && e.target !== hamburgerBtn) {
-      hamburgerMenu.style.display = 'none';
-    }
-  });
-
-  // Highlight active page
-  document.querySelectorAll('#hamburgerMenu a').forEach(a => {
-    if(a.textContent.toLowerCase() === activePage.toLowerCase()) {
-      a.classList.add('active');
-    } else {
-      a.classList.remove('active');
-    }
-  });
-
-  // Add padding to body so content isn't hidden under navbar
-  const adjustPadding = () => {
-    const header = document.querySelector('header');
-    if(header) document.body.style.paddingTop = `${header.offsetHeight}px`;
-  };
-  window.addEventListener('resize', adjustPadding);
-  adjustPadding();
-
-  // Logout button
-  const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn.addEventListener('click', () => {
-    // Replace with your logout logic
-    window.location.href = "/login";
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try { await signOut(auth); window.location.href = "/login"; }
+    catch(e){ console.error(e); }
   });
 }
