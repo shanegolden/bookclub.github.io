@@ -43,7 +43,7 @@ export async function loadNavbar(activePage, isAdmin = false) {
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOut(auth);
-        window.location.href = "./login.html";
+        window.location.href = "./index.html";
       } catch (e) {
         console.error("Logout failed:", e);
       }
