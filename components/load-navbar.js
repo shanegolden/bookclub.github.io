@@ -43,7 +43,10 @@ export async function loadNavbar(activePage, isAdmin = false) {
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     const navbarRight = navbarContainer.querySelector(".navbar-right");
+    const navbarLeft = navbarContainer.querySelector(".navbar-left");
     navbarRight.innerHTML = ""; // clear first
+
+    const isHomePage = window.location.pathname.endsWith("index.html") || window.location.pathname === "/";
 
     if (user) {
       // Logged in: show logout button
@@ -59,6 +62,11 @@ export async function loadNavbar(activePage, isAdmin = false) {
         }
       });
       navbarRight.appendChild(logoutBtn);
+
+      if (isHomePage) {
+        // On homepage, show full navbar for logged-in users
+        if (navbarLeft) navbarLeft.style.display = "flex";
+      }
     } else {
       // Logged out: show login button
       const loginBtn = document.createElement("a");
@@ -66,6 +74,11 @@ export async function loadNavbar(activePage, isAdmin = false) {
       loginBtn.id = "loginBtn";
       loginBtn.textContent = "Log In";
       navbarRight.appendChild(loginBtn);
+
+      if (isHomePage) {
+        // Hide hamburger menu/left items on homepage if logged out
+        if (navbarLeft) navbarLeft.style.display = "none";
+      }
     }
   });
 }
