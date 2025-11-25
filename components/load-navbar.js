@@ -1,5 +1,5 @@
 export async function loadNavbar(activePage, isAdmin = false) {
-  const navbarContainer = document.getElementById("navbarContainer");
+  const navbarContainer = document.getElementById("navbar");
   if (!navbarContainer) return;
 
   // Fetch navbar HTML
@@ -27,7 +27,7 @@ export async function loadNavbar(activePage, isAdmin = false) {
     hamburgerMenu.style.display = hamburgerMenu.style.display === "none" ? "block" : "none";
   });
 
-  // Logout button
+  // Logout button (assumes auth is globally available)
   const logoutBtn = navbarContainer.querySelector("#logoutBtn");
   logoutBtn.addEventListener("click", async () => {
     try {
