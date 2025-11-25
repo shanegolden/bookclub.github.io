@@ -1,119 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Book Club Home</title>
-  <link rel="stylesheet" href="styles.css">
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
-
-    // Firebase config
-    const firebaseConfig = { 
-      apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
-      authDomain:"book-club-f42b1.firebaseapp.com", 
-      projectId:"book-club-f42b1", 
-      storageBucket:"book-club-f42b1.appspot.com", 
-      messagingSenderId:"85630091573", 
-      appId:"1:85630091573:web:427077f1351140fc278c7c" 
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Placeholder for currentPeriod (you may need to set this dynamically or fetch it)
-    let currentPeriod = null;
-
-    async function fetchCurrentPeriod() {
-      try {
-        const periodSnap = await getDocs(collection(db, "periods"));
-        if (!periodSnap.empty) {
-          // assuming last document is the current period
-          currentPeriod = periodSnap.docs[periodSnap.docs.length - 1].data();
-          currentPeriod.id = periodSnap.docs[periodSnap.docs.length - 1].id;
-        }
-      } catch (err) {
-        console.error("Error fetching current period:", err);
-      }
-    }
-
-    async function displayWinner() {
-      const container = document.getElementById("winnerDisplay");
-      container.innerHTML = "";
-
-      if (!currentPeriod) return;
-
-      const booksSnap = await getDocs(query(collection(db, "books"), where("periodId", "==", currentPeriod.id)));
-      const books = booksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-      if (books.length === 0 || books.every(b => !b.votes?.length)) {
-        container.innerText = "No winner yet";
-        return;
-      }
-
-      const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
-
-      let details = {};
-      try {
-        const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
-        const data = await res.json();
-        if (data.docs && data.docs.length > 0) {
-          const doc = data.docs[0];
-          details.year = doc.first_publish_year || "Unknown";
-          details.pages = doc.number_of_pages_median || "Unknown";
-          details.description = doc.subtitle || doc.text?.slice(0, 200)?.join(" ") || "No description available";
-        }
-      } catch (err) {
-        console.error(err);
-        details = { year: "Unknown", pages: "Unknown", description: "No description available" };
-      }
-
-      const div = document.createElement("div");
-      div.className = "submission-card";
-      div.style.flexDirection = "column";
-      div.style.alignItems = "center";
-      div.innerHTML = `
-        <img src="${winner.coverUrl}" class="book-cover" style="width:150px;height:220px"/>
-        <div class="book-info" style="text-align:center; margin-top:0.5rem;">
-          <h3>${winner.title}</h3>
-          <p><strong>Author:</strong> ${winner.author}</p>
-          <p><strong>Year Published:</strong> ${details.year}</p>
-          <p><strong>Pages:</strong> ${details.pages}</p>
-          <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
-          <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
-        </div>
-      `;
-      container.appendChild(div);
-    }
-
-    // On page load
-    window.addEventListener("DOMContentLoaded", async () => {
-      await fetchCurrentPeriod();
-      displayWinner();
-    });
-  </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Book Club Home</title>
+<link rel="stylesheet" href="./components/navbar.css" />
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f6fa; margin:0; padding:0; padding-top:80px; }
+  .container { max-width:600px; margin:2rem auto; padding:1rem; background:white; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+  .submission-card { display:flex; flex-direction:column; align-items:center; margin:1rem 0; background:#f0f4f8; padding:1rem; border-radius:8px; }
+  .submission-card img.book-cover { width:150px; height:220px; object-fit:cover; border-radius:5px; }
+  .book-info { text-align:center; margin-top:0.5rem; }
+  .winner-display { margin-top:1rem; font-weight:bold; font-size:1.2rem; color:green; }
+</style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav>
-    <ul>
-      <li><a href="home.html">Home</a></li>
-      <li><a href="vote.html">Vote</a></li>
-      <li><a href="dashboard.html">Dashboard</a></li>
-      <li><a href="login.html">Login</a></li>
-    </ul>
-  </nav>
 
-  <main>
-    <h1>Welcome to the Book Club!</h1>
-    <section id="latest-winner">
-      <h2>Most Recent Winning Book</h2>
-      <div id="winnerDisplay">
-        Loading...
-      </div>
-    </section>
-  </main>
+<!-- Navbar container -->
+<div id="navbar"></div>
+
+<!-- Home content -->
+<div class="container">
+  <h2>Most Recent Winning Book</h2>
+  <div id="winnerDisplay" class="winner-display">Loading...</div>
+</div>
+
+<!-- Navbar JS -->
+<script type="module">
+import { loadNavbar } from './components/load-navbar.js';
+loadNavbar("Home", false); // Home active, no admin menu
+</script>
+
+<!-- Firebase + Winner JS -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = { 
+  apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
+  authDomain:"book-club-f42b1.firebaseapp.com", 
+  projectId:"book-club-f42b1", 
+  storageBucket:"book-club-f42b1.appspot.com", 
+  messagingSenderId:"85630091573", 
+  appId:"1:85630091573:web:427077f1351140fc278c7c" 
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentPeriod = null;
+
+// Fetch the latest submission period
+async function fetchCurrentPeriod() {
+  const periodsSnap = await getDocs(collection(db, "submissionPeriods"));
+  const periods = periodsSnap.docs.map(d => ({id:d.id, ...d.data()}))
+    .sort((a,b)=>b.createdAt?.toMillis() - a.createdAt?.toMillis());
+  currentPeriod = periods[0] || null;
+}
+
+// Display the winning book
+async function displayWinner() {
+  const container = document.getElementById("winnerDisplay");
+  container.innerHTML = "";
+
+  if (!currentPeriod) { container.innerText = "No submission periods yet."; return; }
+
+  const booksSnap = await getDocs(query(collection(db, "books"), where("periodId", "==", currentPeriod.id)));
+  const books = booksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  if (books.length === 0 || books.every(b => !b.votes?.length)) {
+    container.innerText = "No winner yet";
+    return;
+  }
+
+  const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
+
+  let details = {};
+  try {
+    const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
+    const data = await res.json();
+    if (data.docs && data.docs.length > 0) {
+      const doc = data.docs[0];
+      details.year = doc.first_publish_year || "Unknown";
+      details.pages = doc.number_of_pages_median || "Unknown";
+      details.description = doc.subtitle || doc.text?.slice(0, 200)?.join(" ") || "No description available";
+    }
+  } catch(err) { console.error(err); details = { year: "Unknown", pages: "Unknown", description: "No description available" }; }
+
+  const div = document.createElement("div");
+  div.className = "submission-card";
+  div.innerHTML = `
+    <img src="${winner.coverUrl}" class="book-cover"/>
+    <div class="book-info">
+      <h3>${winner.title}</h3>
+      <p><strong>Author:</strong> ${winner.author}</p>
+      <p><strong>Year Published:</strong> ${details.year}</p>
+      <p><strong>Pages:</strong> ${details.pages}</p>
+      <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
+      <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+// Initialize page
+window.addEventListener("DOMContentLoaded", async () => {
+  await fetchCurrentPeriod();
+  displayWinner();
+});
+</script>
+
 </body>
 </html>
