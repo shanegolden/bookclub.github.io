@@ -90,6 +90,10 @@
   </style>
 </head>
 <body>
+ <!-- Navbar container -->
+ <div id="navbar"></div>
+
+ <!-- Log in header -->
   <header>📚 Club</header>
   <main>
     <div class="login-signup-tabs">
@@ -224,6 +228,14 @@
 
   // Default load login
   renderLogin();
+
 </script>
+
+  <!-- Navbar script -->
+  <script type="module">
+    import { loadNavbar } from './components/load-navbar.js';
+    loadNavbar("Charter");
+  </script>
+  
 </body>
 </html>
