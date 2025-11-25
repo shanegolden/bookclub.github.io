@@ -8,34 +8,31 @@ header {
   color: white;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start; /* <-- changed from space-between */
   padding: 1rem;
   box-sizing: border-box;
-}
-
-#hamburgerBtn {
-  font-size: 1.2rem;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
+  gap: 1rem; /* space between left items and logout */
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 0.1rem; /* very tight spacing */
+  gap: 0.2rem; /* tighten spacing between hamburger, emoji, and page title */
 }
 
 #logo {
-  margin-left: 0; /* remove all extra margin */
+  margin-left: 0;
   font-size: 1.2rem;
 }
 
 #pageTitle {
-  margin-left: 0.1rem; /* tiny space so it’s not touching the emoji */
+  margin-left: 0.1rem;
   font-weight: bold;
   font-size: 1.1rem;
+}
+
+.navbar-right {
+  margin-left: auto; /* pushes logout button to the far right */
 }
 
 #logoutBtn {
