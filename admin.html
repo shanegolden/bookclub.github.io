@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="navbar.css" />
 <style>
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
-  main { padding: 2rem; max-width: 1000px; margin: auto; margin-top: 80px; } /* Added margin-top to avoid navbar overlap */
+  main { padding: 2rem; max-width: 1000px; margin: auto; margin-top: 80px; } /* leave space for navbar */
   h2 { color: #1f2937; margin-top: 2rem; }
   .btn { background: #4f46e5; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin: 0.2rem; }
   .btn:hover { background: #6366f1; }
@@ -19,15 +19,14 @@
   .book-info { flex-grow: 1; }
   .book-info h3 { margin: 0; font-size: 1.2rem; }
   .book-info p { margin: 0.3rem 0; color: #4b5563; }
-  .edit-section { margin-top: 0.5rem; }
 </style>
 </head>
 <body>
 
-<!-- Navbar will be dynamically inserted here -->
+<!-- Navbar will be dynamically inserted -->
 <script type="module">
   import { loadNavbar } from './navbar.js';
-  // "Admin" is the active page, true means show admin-only menu item
+  // Pass "Admin" to indicate this page is active, true = show admin menu items
   loadNavbar("Admin", true);
 </script>
 
@@ -67,7 +66,6 @@
   let currentUser = null;
   let submissionOpen = false;
 
-  // Load pending member requests
   async function loadMemberRequests() {
     const container = document.getElementById("memberRequestsList");
     container.innerHTML = "";
@@ -98,7 +96,6 @@
     });
   }
 
-  // Load submission periods
   async function loadSubmissionPeriods() {
     const periodsSnap = await getDocs(collection(db, "submissionPeriods"));
     const container = document.getElementById("submissionPeriodsList");
@@ -153,29 +150,6 @@
           submissionsListDiv.appendChild(bookCard);
           books.push({...b, id:bDoc.id});
         }
-
-        if(period.votingActive){
-          const sortedBooks = books.sort((a,b) => (b.votes?.length || 0) - (a.votes?.length || 0));
-          const topVotes = sortedBooks[0]?.votes?.length || 0;
-          const topBooks = sortedBooks.filter(b => (b.votes?.length || 0) === topVotes);
-          if(topBooks.length > 1){
-            const tieNotice = document.createElement("p");
-            tieNotice.innerText = "Tie detected! Start tie-breaker voting for tied books only.";
-            submissionsListDiv.appendChild(tieNotice);
-
-            const tieBtn = document.createElement("button");
-            tieBtn.className = "btn";
-            tieBtn.innerText = "Start Tie-Breaker Voting";
-            tieBtn.addEventListener("click", async () => {
-              for(const b of sortedBooks){
-                if(!topBooks.includes(b)) await updateDoc(doc(db,"books",b.id), { votes: [] });
-              }
-              await updateDoc(doc(db,"submissionPeriods",docSnap.id), { voters: [], votingActive: true });
-              loadSubmissionPeriods();
-            });
-            submissionsListDiv.appendChild(tieBtn);
-          }
-        }
       });
 
       card.querySelector(".editPeriod").addEventListener("click", async () => {
@@ -193,7 +167,6 @@
     });
   }
 
-  // Toggle submission
   document.getElementById("toggleSubmission").addEventListener("click", async () => {
     const nameInput = document.getElementById("periodName").value.trim();
     const periodsRef = collection(db,"submissionPeriods");
@@ -217,7 +190,6 @@
     loadSubmissionPeriods();
   });
 
-  // Auth
   onAuthStateChanged(auth,user=>{
     if(!user) window.location.href="login.html";
     else { currentUser=user; loadMemberRequests(); loadSubmissionPeriods(); }
