@@ -6,7 +6,7 @@
   </div>
 
   <div class="navbar-right">
-    <!-- Login/Logout buttons will be injected here by JS -->
+    <!-- Login/Logout buttons will be injected here -->
   </div>
 
   <div id="hamburgerMenu" class="hamburger-menu" style="display: none;">
@@ -14,95 +14,78 @@
     <a href="/dashboard.html">Dashboard</a>
     <a href="/charter.html">Charter</a>
     <a id="adminNavItem" href="/admin.html" style="display:none;">Admin</a>
+    <button id="logoutBtn" class="btn logout-btn">Logout</button>
   </div>
 </nav>
 
 <style>
-  .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #4f46e5;
-    color: white;
-    display: flex;
-    justify-content: space-between; /* left and right alignment */
-    align-items: center;
-    padding: 1rem 2rem;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
+.navbar {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  background: #4f46e5;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 
-  .navbar-left {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
 
-  .books-emoji {
-    font-size: 1.4rem;
-  }
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
-  .hamburger-btn {
-    font-size: 1.5rem;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
+.books-emoji {
+  font-size: 1.4rem;
+}
 
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
+.hamburger-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
 
-  .hamburger-menu {
-    position: absolute;
-    top: 60px;
-    left: 2rem;
-    background: white;
-    color: black;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    min-width: 160px;
-  }
+/* Hamburger menu */
+.hamburger-menu {
+  position: absolute;
+  top: 60px; left: 2rem;
+  background: white; color: black;
+  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; min-width: 160px;
+}
 
-  .hamburger-menu a,
-  .hamburger-menu button {
-    padding: 0.8rem 1rem;
-    text-decoration: none;
-    color: black;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-  }
+.hamburger-menu a,
+.hamburger-menu button {
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+  color: black;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
 
-  .hamburger-menu a:hover,
-  .hamburger-menu button:hover {
-    background: #e0e7ff;
-  }
+.hamburger-menu a:hover,
+.hamburger-menu button:hover {
+  background: #e0e7ff;
+}
 
-  .hamburger-menu a.active {
-    font-weight: bold;
-    color: #4f46e5;
-  }
-
-  .logout-btn, #loginBtn {
-    background: none;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  #loginBtn:hover, .logout-btn:hover {
-    text-decoration: underline;
-  }
+/* Logout button styling */
+.logout-btn {
+  width: 100%;
+  text-align: left;
+}
 </style>
