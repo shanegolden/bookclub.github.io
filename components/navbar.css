@@ -1,3 +1,4 @@
+/* Navbar container */
 header {
   position: fixed;
   top: 0;
@@ -8,16 +9,30 @@ header {
   color: white;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* <-- changed from space-between */
+  justify-content: flex-start;
   padding: 1rem;
   box-sizing: border-box;
-  gap: 1rem; /* space between left items and logout */
+  gap: 1rem; /* space between left group and logout button */
 }
 
+/* Left group: hamburger, emoji, page title */
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 0.2rem; /* tighten spacing between hamburger, emoji, and page title */
+  gap: 0.2rem; /* tight spacing */
+}
+
+/* Right group: logout button */
+.navbar-right {
+  margin-left: auto; /* pushes button to far right */
+}
+
+#hamburgerBtn {
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
 }
 
 #logo {
@@ -29,10 +44,6 @@ header {
   margin-left: 0.1rem;
   font-weight: bold;
   font-size: 1.1rem;
-}
-
-.navbar-right {
-  margin-left: auto; /* pushes logout button to the far right */
 }
 
 #logoutBtn {
