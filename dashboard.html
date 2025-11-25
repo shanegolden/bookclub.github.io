@@ -5,14 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Book Club Dashboard</title>
 <style>
-/* Keep existing styles intact */
+/* General page styles */
 body { font-family: Arial, sans-serif; background: #f5f6fa; margin:0; padding:0; }
+
+/* Navbar styles */
+header { display:flex; justify-content:space-between; align-items:center; padding:1rem; background:#1e1e2f; color:white; }
+#hamburgerMenu a { display:block; color:white; text-decoration:none; padding:0.5rem 0; }
+#hamburgerMenu a.active { font-weight:bold; text-decoration:underline; }
+#hamburgerBtn { font-size:1.2rem; background:none; border:none; color:white; cursor:pointer; }
+
+/* Dashboard container */
+.container { max-width:900px; margin:2rem auto; padding:1rem; background:white; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+
+/* Input & button styles */
+input { padding:0.5rem; width:100%; margin:0.5rem 0; border-radius:5px; border:1px solid #ccc; }
 button { padding:0.5rem 1rem; margin:0.2rem; cursor:pointer; border:none; border-radius:5px; }
 button:hover { opacity:0.9; }
 .btn-primary { background:#4a90e2; color:white; }
 .btn-danger { background:#e94b3c; color:white; }
-.container { max-width:900px; margin:2rem auto; padding:1rem; background:white; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-input { padding:0.5rem; width:100%; margin:0.5rem 0; border-radius:5px; border:1px solid #ccc; }
+
+/* Submission & voting cards */
 .submission-card { display:flex; gap:1rem; margin:1rem 0; background:#f0f4f8; padding:0.5rem; border-radius:8px; transition: transform 0.2s ease; }
 .submission-card:hover { transform: translateY(-2px); }
 .submission-card img.book-cover { width:120px; height:180px; object-fit:cover; border-radius:5px; }
@@ -26,32 +38,28 @@ h2 { border-bottom:1px solid #ccc; padding-bottom:0.5rem; }
 .vote-info { margin-top:0.5rem; color:#333; }
 .winner-display { margin-top:1rem; font-weight:bold; font-size:1.2rem; color:green; }
 </style>
-
-<!-- Load navbar JS first -->
-<script type="module">
-  import { loadNavbar } from '/js/navbar.js';
-  loadNavbar("Dashboard");
-</script>
 </head>
 <body>
 
-<!-- Navbar will inject header here -->
+<!-- Navbar container -->
+<div id="navbarContainer"></div>
 
+<!-- Dashboard content -->
 <div class="container">
-<h2 id="sectionTitle">Submit a Book</h2>
-<div id="submissionForm">
-  <input id="bookTitle" placeholder="Book Title" />
-  <input id="bookAuthor" placeholder="Author Name" />
-  <button id="submitBookBtn" class="btn-primary">Submit Book</button>
-</div>
+  <h2 id="sectionTitle">Submit a Book</h2>
+  <div id="submissionForm">
+    <input id="bookTitle" placeholder="Book Title" />
+    <input id="bookAuthor" placeholder="Author Name" />
+    <button id="submitBookBtn" class="btn-primary">Submit Book</button>
+  </div>
 
-<div id="matchSelection" class="match-options"></div>
-<div id="winnerDisplay" class="winner-display"></div>
+  <div id="matchSelection" class="match-options"></div>
+  <div id="winnerDisplay" class="winner-display"></div>
 
-<div class="my-submissions">
-  <h2>My Submissions</h2>
-  <div id="mySubmissionsList"></div>
-</div>
+  <div class="my-submissions">
+    <h2>My Submissions</h2>
+    <div id="mySubmissionsList"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -59,6 +67,45 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, collection, query, where, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+// --- Navbar function ---
+function loadNavbar(activePage, isAdmin = false) {
+  const navbarContainer = document.getElementById("navbarContainer");
+  if (!navbarContainer) return;
+
+  const pages = ["Home", "Dashboard", "Charter"];
+  if (isAdmin) pages.push("Admin");
+
+  const pageLinks = pages.map(page => {
+    const activeClass = page === activePage ? "active" : "";
+    return `<a href="/${page.toLowerCase()}" class="${activeClass}">${page}</a>`;
+  }).join("");
+
+  navbarContainer.innerHTML = `
+    <header>
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <button id="hamburgerBtn">☰</button>
+        <span style="font-size:1.5rem;">📚</span>
+        <span id="activePageName">${activePage}</span>
+      </div>
+      <button id="logoutBtn" class="btn-danger">Logout</button>
+    </header>
+    <nav id="hamburgerMenu" style="display:none; background:#2b2b3f; padding:1rem;">
+      ${pageLinks}
+    </nav>
+  `;
+
+  document.getElementById("hamburgerBtn").addEventListener("click", () => {
+    const menu = document.getElementById("hamburgerMenu");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try { await signOut(auth); window.location.href="/login"; }
+    catch(e){ console.error(e); }
+  });
+}
+
+// --- Firebase config ---
 const firebaseConfig = { 
   apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
   authDomain:"book-club-f42b1.firebaseapp.com", 
@@ -67,6 +114,7 @@ const firebaseConfig = {
   messagingSenderId:"85630091573", 
   appId:"1:85630091573:web:427077f1351140fc278c7c" 
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -74,15 +122,10 @@ const db = getFirestore(app);
 let currentUser = null;
 let currentPeriod = null;
 
-// Logout handled by navbar
-document.addEventListener("click", async e => {
-  if(e.target.id === "logoutBtn") {
-    await signOut(auth);
-    window.location.href = "/login";
-  }
-});
+// --- Load Navbar for dashboard page ---
+loadNavbar("Dashboard", true);
 
-// Auth + setup
+// --- Auth + setup ---
 onAuthStateChanged(auth, async (user) => {
   if(!user) return window.location.href="/login";
   currentUser = user;
@@ -90,12 +133,12 @@ onAuthStateChanged(auth, async (user) => {
   await loadMySubmissions();
 });
 
-// Submission periods listener
+// --- Submission period listener ---
 async function setupSubmissionListener() {
   const periodsRef = collection(db,"submissionPeriods");
   onSnapshot(periodsRef, async (snapshot) => {
     const periods = snapshot.docs.map(d => ({id:d.id, ...d.data()}))
-                      .sort((a,b)=>b.createdAt?.toMillis() - a.createdAt?.toMillis());
+      .sort((a,b)=>b.createdAt?.toMillis() - a.createdAt?.toMillis());
     currentPeriod = periods[0] || null;
 
     const sectionTitle = document.getElementById("sectionTitle");
@@ -129,7 +172,7 @@ async function setupSubmissionListener() {
   });
 }
 
-// Submit book
+// --- Submit book ---
 document.getElementById("submitBookBtn").addEventListener("click", async () => {
   const title = document.getElementById("bookTitle").value.trim();
   const author = document.getElementById("bookAuthor").value.trim();
@@ -139,11 +182,7 @@ document.getElementById("submitBookBtn").addEventListener("click", async () => {
   try {
     const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(title + " " + author)}&limit=5`);
     const data = await res.json();
-    matches = data.docs.map(d=>({ 
-      title:d.title, 
-      author:d.author_name?.[0]||"", 
-      coverUrl:d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : "https://via.placeholder.com/120x180" 
-    }));
+    matches = data.docs.map(d=>({ title:d.title, author:d.author_name?.[0]||"", coverUrl:d.cover_i?`https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg`:"https://via.placeholder.com/120x180" }));
   } catch(e){ console.error(e); }
   if(matches.length===0) matches.push({title,author,coverUrl:"https://via.placeholder.com/120x180"});
 
@@ -176,7 +215,7 @@ document.getElementById("submitBookBtn").addEventListener("click", async () => {
   });
 });
 
-// Voting logic
+// --- Voting options ---
 async function loadVotingOptions() {
   if(!currentPeriod) return;
   const container = document.getElementById("matchSelection");
@@ -198,7 +237,8 @@ async function loadVotingOptions() {
     </div>`;
     container.appendChild(div);
 
-    div.querySelector(".voteBtn").addEventListener("click", async () => {
+    const voteBtn = div.querySelector(".voteBtn");
+    voteBtn.addEventListener("click", async () => {
       if(userAlreadyVoted) return;
       if(userVotesCount>=3) return alert("You can vote for up to 3 books only.");
       await updateDoc(doc(db,"books",b.id), { votes: [...(b.votes||[]), currentUser.uid] });
@@ -207,7 +247,7 @@ async function loadVotingOptions() {
   });
 }
 
-// My submissions
+// --- Load My Submissions ---
 async function loadMySubmissions() {
   if(!currentUser) return;
   const container = document.getElementById("mySubmissionsList");
@@ -222,7 +262,6 @@ async function loadMySubmissions() {
   books.forEach(b=>{
     const div = document.createElement("div");
     div.className="submission-card";
-
     const bookPeriod = periods.find(p=>p.id === b.periodId);
     const canEdit = bookPeriod && bookPeriod.active && !bookPeriod.votingActive;
 
@@ -250,15 +289,15 @@ async function loadMySubmissions() {
   });
 }
 
-// Winner display
+// --- Display winner ---
 async function displayWinner() {
   const container = document.getElementById("winnerDisplay");
-  container.innerHTML = "";
+  container.innerHTML = ""; 
 
-  if(!currentPeriod) return;
+  if (!currentPeriod) return;
 
-  const booksSnap = await getDocs(query(collection(db,"books"), where("periodId","==",currentPeriod.id)));
-  const books = booksSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+  const booksSnap = await getDocs(query(collection(db, "books"), where("periodId", "==", currentPeriod.id)));
+  const books = booksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   if (books.length === 0 || books.every(b => !b.votes?.length)) {
     container.innerText = "No winner yet";
@@ -277,10 +316,7 @@ async function displayWinner() {
       details.pages = doc.number_of_pages_median || "Unknown";
       details.description = doc.subtitle || doc.text?.slice(0, 200)?.join(" ") || "No description available";
     }
-  } catch (err) {
-    console.error(err);
-    details = { year: "Unknown", pages: "Unknown", description: "No description available" };
-  }
+  } catch (err) { console.error(err); details = { year: "Unknown", pages: "Unknown", description: "No description available" }; }
 
   const div = document.createElement("div");
   div.className = "submission-card";
@@ -299,6 +335,7 @@ async function displayWinner() {
   `;
   container.appendChild(div);
 }
+
 </script>
 </body>
 </html>
