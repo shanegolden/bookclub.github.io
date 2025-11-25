@@ -1,22 +1,21 @@
-header, #mainNavbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
+#mainNavbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: #1e1e2f;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
   box-sizing: border-box;
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 0.2rem; /* tight spacing */
+  gap: 0.3rem; /* books emoji and page title closer to hamburger */
 }
 
 #hamburgerBtn {
@@ -28,12 +27,11 @@ header, #mainNavbar {
 }
 
 #logo {
-  margin-left: 0;
   font-size: 1.2rem;
+  margin-left: 0;
 }
 
 #pageTitle {
-  margin-left: 0.2rem;
   font-weight: bold;
   font-size: 1.1rem;
 }
@@ -51,7 +49,6 @@ header, #mainNavbar {
   opacity: 0.9;
 }
 
-/* Hamburger menu */
 #hamburgerMenu {
   display: none;
   position: fixed;
@@ -72,10 +69,8 @@ header, #mainNavbar {
   margin: 0.5rem 0;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  transition: background 0.2s;
 }
 
-#hamburgerMenu a:hover,
 #hamburgerMenu a.active {
   background: #4a90e2;
   font-weight: bold;
