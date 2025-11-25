@@ -1,19 +1,13 @@
-<nav id="mainNavbar">
+<nav class="navbar">
   <div class="navbar-left">
-    <button id="hamburgerBtn">☰</button>
-    <span id="logo">📚</span>
-    <span id="pageTitle">Home</span>
+    <span id="pageTitle">Page</span>
   </div>
-  <div class="navbar-right">
-    <button id="logoutBtn">Logout</button>
+  <button id="hamburgerBtn" class="hamburger-btn">☰</button>
+  <div id="hamburgerMenu" class="hamburger-menu" style="display: none;">
+    <a href="/index.html">Home</a>
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/charter.html">Charter</a>
+    <a id="adminNavItem" href="/admin.html" style="display:none;">Admin</a>
+    <button id="logoutBtn" class="btn">Logout</button>
   </div>
 </nav>
-
-<div id="hamburgerMenu" style="display:none;">
-  <ul>
-    <li><a href="/index.html">Home</a></li>
-    <li><a href="/dashboard.html">Dashboard</a></li>
-    <li><a href="/charter.html">Charter</a></li>
-    <li id="adminNavItem" style="display:none;"><a href="/admin.html">Admin</a></li>
-  </ul>
-</div>
