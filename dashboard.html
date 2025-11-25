@@ -3,34 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Book Club Dashboard</title>
-<!-- Navbar CSS -->
+<title>Book Club Home</title>
 <link rel="stylesheet" href="./components/navbar.css" />
 <style>
-/* Dashboard-specific styles */
-body { font-family: Arial, sans-serif; background: #f5f6fa; margin:0; padding:0; padding-top:80px; } /* padding-top for navbar */
-.container { max-width:900px; margin:2rem auto; padding:1rem; background:white; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-
-/* Input & button styles */
-input { padding:0.5rem; width:100%; margin:0.5rem 0; border-radius:5px; border:1px solid #ccc; }
-button { padding:0.5rem 1rem; margin:0.2rem; cursor:pointer; border:none; border-radius:5px; }
-button:hover { opacity:0.9; }
-.btn-primary { background:#4a90e2; color:white; }
-.btn-danger { background:#e94b3c; color:white; }
-
-/* Submission & voting cards */
-.submission-card { display:flex; gap:1rem; margin:1rem 0; background:#f0f4f8; padding:0.5rem; border-radius:8px; transition: transform 0.2s ease; }
-.submission-card:hover { transform: translateY(-2px); }
-.submission-card img.book-cover { width:120px; height:180px; object-fit:cover; border-radius:5px; }
-.book-info { flex:1; display:flex; flex-direction:column; justify-content:space-between; }
-.book-actions { margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap; }
-.my-submissions { margin-top:2rem; }
-h2 { border-bottom:1px solid #ccc; padding-bottom:0.5rem; }
-.match-options { display:flex; flex-wrap:wrap; gap:1rem; margin-top:1rem; }
-.match-options .submission-card { width:200px; flex-direction:column; align-items:center; }
-.match-options .book-info { align-items:center; text-align:center; }
-.vote-info { margin-top:0.5rem; color:#333; }
-.winner-display { margin-top:1rem; font-weight:bold; font-size:1.2rem; color:green; }
+  body { font-family: Arial, sans-serif; background: #f5f6fa; margin:0; padding:0; padding-top:80px; }
+  .container { max-width:600px; margin:2rem auto; padding:1rem; background:white; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+  .submission-card { display:flex; flex-direction:column; align-items:center; margin:1rem 0; background:#f0f4f8; padding:1rem; border-radius:8px; }
+  .submission-card img.book-cover { width:150px; height:220px; object-fit:cover; border-radius:5px; }
+  .book-info { text-align:center; margin-top:0.5rem; }
+  .winner-display { margin-top:1rem; font-weight:bold; font-size:1.2rem; color:green; }
 </style>
 </head>
 <body>
@@ -38,35 +19,22 @@ h2 { border-bottom:1px solid #ccc; padding-bottom:0.5rem; }
 <!-- Navbar container -->
 <div id="navbar"></div>
 
-<!-- Dashboard content -->
+<!-- Home content -->
 <div class="container">
-  <h2 id="sectionTitle">Submit a Book</h2>
-  <div id="submissionForm">
-    <input id="bookTitle" placeholder="Book Title" />
-    <input id="bookAuthor" placeholder="Author Name" />
-    <button id="submitBookBtn" class="btn-primary">Submit Book</button>
-  </div>
-
-  <div id="matchSelection" class="match-options"></div>
-  <div id="winnerDisplay" class="winner-display"></div>
-
-  <div class="my-submissions">
-    <h2>My Submissions</h2>
-    <div id="mySubmissionsList"></div>
-  </div>
+  <h2>Most Recent Winning Book</h2>
+  <div id="winnerDisplay" class="winner-display">Loading...</div>
 </div>
 
 <!-- Navbar JS -->
 <script type="module">
 import { loadNavbar } from './components/load-navbar.js';
-loadNavbar("Dashboard", true); // Dashboard active, admin menu included
+loadNavbar("Home", false); // Home active, no admin menu
 </script>
 
-<!-- Dashboard JS -->
+<!-- Firebase + Winner JS -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, collection, query, where, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, limit, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const firebaseConfig = { 
   apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
@@ -78,222 +46,67 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-let currentUser = null;
 let currentPeriod = null;
 
-// --- Auth + setup ---
-onAuthStateChanged(auth, async (user) => {
-  if(!user) return window.location.href="/login.html";
-  currentUser = user;
-  await setupSubmissionListener();
-  await loadMySubmissions();
+// Listen for the latest submission period in real time
+const periodsRef = collection(db, "submissionPeriods");
+onSnapshot(query(periodsRef, orderBy("createdAt", "desc"), limit(1)), snapshot => {
+  const periods = snapshot.docs.map(d => ({ id:d.id, ...d.data() }));
+  currentPeriod = periods[0] || null;
+  updateWinnerDisplay();
 });
 
-// --- Submission period listener ---
-async function setupSubmissionListener() {
-  const periodsRef = collection(db,"submissionPeriods");
-  onSnapshot(periodsRef, async (snapshot) => {
-    const periods = snapshot.docs.map(d => ({id:d.id, ...d.data()}))
-      .sort((a,b)=>b.createdAt?.toMillis() - a.createdAt?.toMillis());
-    currentPeriod = periods[0] || null;
+// Listen for books in the current period in real time
+function updateWinnerDisplay() {
+  const container = document.getElementById("winnerDisplay");
+  if (!currentPeriod) { container.innerText = "No submission periods yet."; return; }
 
-    const sectionTitle = document.getElementById("sectionTitle");
-    const submissionForm = document.getElementById("submissionForm");
-    const matchSelection = document.getElementById("matchSelection");
-    const winnerDisplay = document.getElementById("winnerDisplay");
+  const booksRef = collection(db, "books");
+  const q = query(booksRef, where("periodId", "==", currentPeriod.id));
+  
+  // Real-time listener for books
+  onSnapshot(q, async snapshot => {
+    const books = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    container.innerHTML = "";
 
-    matchSelection.innerHTML = "";
-    winnerDisplay.innerHTML = "";
-
-    if(!currentPeriod) {
-      sectionTitle.innerText = "No Active Submission Period";
-      submissionForm.style.display = "none";
+    if (books.length === 0 || books.every(b => !b.votes?.length)) {
+      container.innerText = "No winner yet";
       return;
     }
 
-    if(currentPeriod.active && !currentPeriod.votingActive) {
-      sectionTitle.innerText = `Submit a Book (${currentPeriod.name})`;
-      submissionForm.style.display = "block";
-    } else if(currentPeriod.votingActive) {
-      sectionTitle.innerText = `Voting Open (${currentPeriod.name})`;
-      submissionForm.style.display = "none";
-      await loadVotingOptions();
-    } else {
-      sectionTitle.innerText = `Voting Closed (${currentPeriod.name})`;
-      submissionForm.style.display = "none";
-      await displayWinner();
-    }
+    const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
 
-    await loadMySubmissions();
-  });
-}
-
-// --- Submit book ---
-document.getElementById("submitBookBtn").addEventListener("click", async () => {
-  const title = document.getElementById("bookTitle").value.trim();
-  const author = document.getElementById("bookAuthor").value.trim();
-  if(!title || !author) return alert("Title and author required.");
-
-  let matches = [];
-  try {
-    const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(title + " " + author)}&limit=5`);
-    const data = await res.json();
-    matches = data.docs.map(d=>({ title:d.title, author:d.author_name?.[0]||"", coverUrl:d.cover_i?`https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg`:"https://via.placeholder.com/120x180" }));
-  } catch(e){ console.error(e); }
-  if(matches.length===0) matches.push({title,author,coverUrl:"https://via.placeholder.com/120x180"});
-
-  const container = document.getElementById("matchSelection");
-  container.innerHTML="<h3>Select the correct match:</h3>";
-
-  matches.forEach(b=>{
-    const div=document.createElement("div");
-    div.className="submission-card";
-    div.innerHTML = `<img src="${b.coverUrl}" class="book-cover"/><div class="book-info"><h3>${b.title}</h3><p>${b.author}</p><button class="btn btn-primary selectMatch">Select</button></div>`;
-    container.appendChild(div);
-
-    div.querySelector(".selectMatch").addEventListener("click", async (e) => {
-      e.preventDefault(); e.stopPropagation();
-      div.querySelector(".selectMatch").disabled = true;
-      try {
-        await addDoc(collection(db,"books"),{
-          title:b.title, author:b.author, coverUrl:b.coverUrl,
-          submittedBy:currentUser.uid, periodId:currentPeriod.id,
-          votes:[], createdAt:serverTimestamp()
-        });
-        container.innerHTML="<p>Book submitted!</p>";
-        await loadMySubmissions();
-      } catch(err) {
-        console.error(err);
-        div.querySelector(".selectMatch").disabled = false;
-        alert("Error submitting book, please try again.");
+    let details = {};
+    try {
+      const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
+      const data = await res.json();
+      if (data.docs && data.docs.length > 0) {
+        const doc = data.docs[0];
+        details.year = doc.first_publish_year || "Unknown";
+        details.pages = doc.number_of_pages_median || "Unknown";
+        details.description = doc.subtitle || doc.text?.slice(0,200)?.join(" ") || "No description available";
       }
-    });
-  });
-});
+    } catch(err) { console.error(err); details = { year:"Unknown", pages:"Unknown", description:"No description available" }; }
 
-// --- Voting options ---
-async function loadVotingOptions() {
-  if(!currentPeriod) return;
-  const container = document.getElementById("matchSelection");
-  container.innerHTML="<h3>Vote for up to 3 books:</h3>";
-
-  const booksSnap = await getDocs(query(collection(db,"books"), where("periodId","==",currentPeriod.id)));
-  const books = booksSnap.docs.map(d=>({id:d.id, ...d.data()}));
-
-  const userVotesCount = books.filter(b=>b.votes?.includes(currentUser.uid)).length;
-
-  books.forEach(b=>{
     const div = document.createElement("div");
-    div.className="submission-card";
-    const userAlreadyVoted = b.votes?.includes(currentUser.uid);
-    div.innerHTML = `<img src="${b.coverUrl}" class="book-cover"/><div class="book-info"><h3>${b.title}</h3><p>${b.author}</p>
-      <button class="btn ${userAlreadyVoted || userVotesCount>=3 ? 'btn-danger' : 'btn-primary'} voteBtn" ${userAlreadyVoted || userVotesCount>=3 ? 'disabled' : ''}>
-        ${userAlreadyVoted ? 'Voted' : 'Vote'}
-      </button>
-    </div>`;
+    div.className = "submission-card";
+    div.innerHTML = `
+      <img src="${winner.coverUrl}" class="book-cover"/>
+      <div class="book-info">
+        <h3>${winner.title}</h3>
+        <p><strong>Author:</strong> ${winner.author}</p>
+        <p><strong>Year Published:</strong> ${details.year}</p>
+        <p><strong>Pages:</strong> ${details.pages}</p>
+        <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
+        <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
+      </div>
+    `;
     container.appendChild(div);
-
-    const voteBtn = div.querySelector(".voteBtn");
-    voteBtn.addEventListener("click", async () => {
-      if(userAlreadyVoted) return;
-      if(userVotesCount>=3) return alert("You can vote for up to 3 books only.");
-      await updateDoc(doc(db,"books",b.id), { votes: [...(b.votes||[]), currentUser.uid] });
-      await loadVotingOptions();
-    });
   });
-}
-
-// --- Load My Submissions ---
-async function loadMySubmissions() {
-  if(!currentUser) return;
-  const container = document.getElementById("mySubmissionsList");
-  container.innerHTML="";
-
-  const booksSnap = await getDocs(query(collection(db,"books"), where("submittedBy","==",currentUser.uid)));
-  const books = booksSnap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>b.createdAt?.toMillis() - a.createdAt?.toMillis());
-
-  const periodsSnap = await getDocs(collection(db,"submissionPeriods"));
-  const periods = periodsSnap.docs.map(d=>({id:d.id, ...d.data()}));
-
-  books.forEach(b=>{
-    const div = document.createElement("div");
-    div.className="submission-card";
-    const bookPeriod = periods.find(p=>p.id === b.periodId);
-    const canEdit = bookPeriod && bookPeriod.active && !bookPeriod.votingActive;
-
-    div.innerHTML = `<img src="${b.coverUrl}" class="book-cover"/><div class="book-info"><h3>${b.title}</h3><p>${b.author}</p>
-      ${canEdit ? `<div class="book-actions">
-        <button class="btn btn-primary editBtn">Edit</button>
-        <button class="btn btn-danger deleteBtn">Delete</button>
-      </div>` : ""}
-    </div>`;
-    container.appendChild(div);
-
-    if(canEdit){
-      div.querySelector(".deleteBtn").addEventListener("click", async ()=>{
-        if(confirm("Delete this book?")) await deleteDoc(doc(db,"books",b.id));
-        await loadMySubmissions();
-      });
-      div.querySelector(".editBtn").addEventListener("click", async ()=>{
-        const newTitle = prompt("New title:", b.title);
-        const newAuthor = prompt("New author:", b.author);
-        if(!newTitle || !newAuthor) return;
-        await updateDoc(doc(db,"books",b.id), {title:newTitle, author:newAuthor});
-        await loadMySubmissions();
-      });
-    }
-  });
-}
-
-// --- Display winner ---
-async function displayWinner() {
-  const container = document.getElementById("winnerDisplay");
-  container.innerHTML = ""; 
-
-  if (!currentPeriod) return;
-
-  const booksSnap = await getDocs(query(collection(db, "books"), where("periodId", "==", currentPeriod.id)));
-  const books = booksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  if (books.length === 0 || books.every(b => !b.votes?.length)) {
-    container.innerText = "No winner yet";
-    return;
-  }
-
-  const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
-
-  let details = {};
-  try {
-    const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
-    const data = await res.json();
-    if (data.docs && data.docs.length > 0) {
-      const doc = data.docs[0];
-      details.year = doc.first_publish_year || "Unknown";
-      details.pages = doc.number_of_pages_median || "Unknown";
-      details.description = doc.subtitle || doc.text?.slice(0, 200)?.join(" ") || "No description available";
-    }
-  } catch (err) { console.error(err); details = { year: "Unknown", pages: "Unknown", description: "No description available" }; }
-
-  const div = document.createElement("div");
-  div.className = "submission-card";
-  div.style.flexDirection = "column";
-  div.style.alignItems = "center";
-  div.innerHTML = `
-    <img src="${winner.coverUrl}" class="book-cover" style="width:150px;height:220px"/>
-    <div class="book-info" style="text-align:center; margin-top:0.5rem;">
-      <h3>${winner.title}</h3>
-      <p><strong>Author:</strong> ${winner.author}</p>
-      <p><strong>Year Published:</strong> ${details.year}</p>
-      <p><strong>Pages:</strong> ${details.pages}</p>
-      <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
-      <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
-    </div>
-  `;
-  container.appendChild(div);
 }
 </script>
+
 </body>
 </html>
