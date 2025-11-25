@@ -1,4 +1,3 @@
-// load-navbar.js
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 export async function loadNavbar(activePage, isAdmin = false) {
@@ -9,15 +8,14 @@ export async function loadNavbar(activePage, isAdmin = false) {
   try {
     const resp = await fetch("./components/navbar.html");
     if (!resp.ok) throw new Error(`Failed to fetch navbar.html: ${resp.status}`);
-    const navbarHtml = await resp.text();
-    navbarContainer.innerHTML = navbarHtml;
+    navbarContainer.innerHTML = await resp.text();
   } catch (err) {
     console.error(err);
     navbarContainer.innerHTML = "<p>Navbar failed to load</p>";
     return;
   }
 
-  // Highlight active page link
+  // Highlight active page
   navbarContainer.querySelectorAll("#hamburgerMenu a").forEach(a => {
     if (a.textContent.trim() === activePage) a.classList.add("active");
   });
@@ -41,36 +39,30 @@ export async function loadNavbar(activePage, isAdmin = false) {
     });
   }
 
-  // Firebase auth handling
+  // Auth logic for login/logout
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
-    const navbarLeft = navbarContainer.querySelector(".navbar-left");
-    const existingLoginBtn = navbarLeft.querySelector("#loginBtn");
-    const logoutBtn = navbarLeft.querySelector("#logoutBtn");
+    const logoutBtn = navbarContainer.querySelector("#logoutBtn");
+    const navbarRight = navbarContainer.querySelector(".navbar-right");
 
     if (user) {
-      // Logged in: show logout, remove login
-      if (logoutBtn) logoutBtn.style.display = "flex";
-      if (existingLoginBtn) existingLoginBtn.remove();
+      // Logged in: show logout
+      if (logoutBtn) logoutBtn.style.display = "block";
+
+      // Remove login button if present
+      const loginBtn = navbarRight.querySelector("#loginBtn");
+      if (loginBtn) loginBtn.remove();
     } else {
-      // Logged out: hide logout, add login
+      // Logged out: hide logout
       if (logoutBtn) logoutBtn.style.display = "none";
 
-      if (!existingLoginBtn) {
+      // Add login button if missing
+      if (!navbarRight.querySelector("#loginBtn")) {
         const loginBtn = document.createElement("a");
         loginBtn.href = "./login.html";
         loginBtn.id = "loginBtn";
         loginBtn.textContent = "Log In";
-
-        // Styling
-        loginBtn.style.marginLeft = "auto";
-        loginBtn.style.color = "white";
-        loginBtn.style.fontWeight = "bold";
-        loginBtn.style.textDecoration = "none";
-        loginBtn.style.display = "flex";
-        loginBtn.style.alignItems = "center";
-
-        navbarLeft.appendChild(loginBtn);
+        navbarRight.appendChild(loginBtn);
       }
     }
   });
