@@ -64,8 +64,16 @@ header {
   color: white;
   text-decoration: none;
   margin: 0.5rem 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
 #hamburgerMenu a:hover {
-  text-decoration: underline;
+  background: #4a90e2;
+}
+
+#hamburgerMenu a.active {
+  background: #4a90e2;
+  font-weight: bold;
 }
