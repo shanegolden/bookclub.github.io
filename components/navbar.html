@@ -3,7 +3,11 @@
     <button id="hamburgerBtn" class="hamburger-btn">☰</button>
     <span class="books-emoji">📚</span>
     <span id="pageTitle">Page</span>
-    <!-- Login/Logout button will be dynamically inserted here by load-navbar.js -->
+  </div>
+
+  <div class="navbar-right">
+    <button id="logoutBtn" class="btn logout-btn">Logout</button>
+    <!-- Login button will be injected here by JS -->
   </div>
 
   <div id="hamburgerMenu" class="hamburger-menu" style="display: none;">
@@ -15,33 +19,35 @@
 </nav>
 
 <style>
-  /* Navbar container */
   .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #4f46e5;
-    color: white;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
+    background: #4f46e5;
+    color: white;
+    position: fixed;
+    width: 100%;
+    top: 0;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
-  /* Left side of navbar: hamburger + emoji + title + login/logout button */
   .navbar-left {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    width: 100%;
+    font-weight: bold;
   }
 
-  /* Books emoji */
   .books-emoji {
     font-size: 1.4rem;
+  }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
   /* Hamburger button */
@@ -89,34 +95,18 @@
     color: #4f46e5;
   }
 
-  /* Login/Logout button styling inside navbar-left */
-  .navbar-left a#loginBtn,
-  .navbar-left button#logoutBtn {
-    margin-left: auto; /* push button to far right */
+  /* Logout button styling */
+  .logout-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  a#loginBtn {
     color: white;
     font-weight: bold;
     text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    font-size: 1rem;
-  }
-
-  .navbar-left a#loginBtn:hover,
-  .navbar-left button#logoutBtn:hover {
-    text-decoration: underline;
-  }
-
-  /* Mobile responsiveness */
-  @media (max-width: 600px) {
-    .navbar {
-      padding: 1rem;
-    }
-    .hamburger-menu {
-      left: 1rem;
-      top: 50px;
-    }
   }
 </style>
