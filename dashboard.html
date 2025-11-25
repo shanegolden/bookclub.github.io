@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script type="module">
-  import { loadNavbar } from '/js/navbar.js';
-  loadNavbar("Dashboard"); // Update active page here
-</script>
-
   <title>Book Club Dashboard</title>
 <style>
 /* Keep existing styles intact */
@@ -35,11 +30,10 @@ h2 { border-bottom:1px solid #ccc; padding-bottom:0.5rem; }
 </style>
 </head>
 <body>
-<header>
-<h1>📚 Club Dashboard</h1>
-<button id="logoutBtn" class="btn-danger">Logout</button>
-</header>
-
+<script type="module">
+  import { loadNavbar } from '/js/navbar.js';
+  loadNavbar("Dashboard"); // sets the active page name
+</script>
 <div class="container">
 <h2 id="sectionTitle">Submit a Book</h2>
 <div id="submissionForm">
