@@ -293,6 +293,23 @@ async function displayWinner() {
     </div>
   `;
   container.appendChild(div);
+
+  // --- SAFE PUBLIC WINNER UPDATE ---
+  try {
+    await setDoc(doc(db, "public", "winner"), {
+      title: winner.title,
+      author: winner.author,
+      coverUrl: winner.coverUrl,
+      votes: winner.votes?.length || 0,
+      year: details.year,
+      pages: details.pages,
+      description: details.description,
+      periodId: currentPeriod.id,
+      updatedAt: new Date()
+    });
+  } catch(err) {
+    console.error("Error updating public winner:", err);
+  }
 }
 </script>
 </body>
