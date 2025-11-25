@@ -4,7 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Book Club Admin Panel</title>
-<link rel="stylesheet" href="components/navbar.css" />
+
+<!-- Navbar CSS -->
+<link rel="stylesheet" href="/css/navbar.css" />
+
+<!-- Page-specific CSS -->
 <style>
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
   main { padding: 2rem; max-width: 1000px; margin: auto; margin-top: 100px; } /* leave space for navbar */
@@ -41,16 +45,16 @@
   <div id="submissionPeriodsList"></div>
 </main>
 
-<!-- Navbar script -->
+<!-- Navbar loader -->
 <script type="module">
-  import { loadNavbar } from './components/navbar.js';
-  loadNavbar("Admin", true); // Admin page active, show admin menu
+  import { loadNavbar } from '/components/load-navbar.js';
+  loadNavbar("Admin", true); // highlight Admin and show admin menu
 </script>
 
 <!-- Firebase + Admin Logic -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -69,7 +73,6 @@
   let currentUser = null;
   let submissionOpen = false;
 
-  // Load pending member requests
   async function loadMemberRequests() {
     const container = document.getElementById("memberRequestsList");
     container.innerHTML = "";
@@ -100,14 +103,13 @@
     });
   }
 
-  // Load submission periods
   async function loadSubmissionPeriods() {
     const periodsSnap = await getDocs(collection(db, "submissionPeriods"));
     const container = document.getElementById("submissionPeriodsList");
     container.innerHTML = "";
 
     const sortedPeriods = periodsSnap.docs.sort((a,b) => b.data().createdAt?.toMillis() - a.data().createdAt?.toMillis());
-    
+
     sortedPeriods.forEach(async docSnap => {
       const period = docSnap.data();
       const card = document.createElement("div");
@@ -138,7 +140,6 @@
         submissionsListDiv.innerHTML = "";
 
         const submissionsSnap = await getDocs(query(collection(db,"books"), where("periodId","==",docSnap.id)));
-        const books = [];
         for(const bDoc of submissionsSnap.docs){
           const b = bDoc.data();
           const bookCard = document.createElement("div");
@@ -152,7 +153,6 @@
             </div>
           `;
           submissionsListDiv.appendChild(bookCard);
-          books.push({...b, id:bDoc.id});
         }
       });
 
