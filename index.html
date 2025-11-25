@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Club Home</title>
+  <!-- Include Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav>
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="vote.html">Vote</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h1>Welcome to the Book Club!</h1>
+    <section id="latest-winner">
+      <h2>Most Recent Winning Book</h2>
+      <div id="winner-details">
+        Loading...
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function getLatestWinner() {
+      try {
+        // Assuming you have a 'votes' collection with a 'round' and 'winner' field
+        const roundsSnapshot = await db.collection('votes')
+          .orderBy('round', 'desc')
+          .limit(1)
+          .get();
+
+        if (!roundsSnapshot.empty) {
+          const latestRound = roundsSnapshot.docs[0].data();
+          document.getElementById('winner-details').innerHTML = `
+            <p><strong>Book Title:</strong> ${latestRound.winner}</p>
+            <p><strong>Round:</strong> ${latestRound.round}</p>
+          `;
+        } else {
+          document.getElementById('winner-details').textContent = "No voting rounds yet!";
+        }
+      } catch (error) {
+        console.error("Error fetching latest winner:", error);
+        document.getElementById('winner-details').textContent = "Error loading winner.";
+      }
+    }
+
+    // Load winner on page load
+    getLatestWinner();
+  </script>
+</body>
+</html>
