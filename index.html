@@ -4,10 +4,96 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book Club Home</title>
-  <!-- Include Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = { 
+      apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
+      authDomain:"book-club-f42b1.firebaseapp.com", 
+      projectId:"book-club-f42b1", 
+      storageBucket:"book-club-f42b1.appspot.com", 
+      messagingSenderId:"85630091573", 
+      appId:"1:85630091573:web:427077f1351140fc278c7c" 
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Placeholder for currentPeriod (you may need to set this dynamically or fetch it)
+    let currentPeriod = null;
+
+    async function fetchCurrentPeriod() {
+      try {
+        const periodSnap = await getDocs(collection(db, "periods"));
+        if (!periodSnap.empty) {
+          // assuming last document is the current period
+          currentPeriod = periodSnap.docs[periodSnap.docs.length - 1].data();
+          currentPeriod.id = periodSnap.docs[periodSnap.docs.length - 1].id;
+        }
+      } catch (err) {
+        console.error("Error fetching current period:", err);
+      }
+    }
+
+    async function displayWinner() {
+      const container = document.getElementById("winnerDisplay");
+      container.innerHTML = "";
+
+      if (!currentPeriod) return;
+
+      const booksSnap = await getDocs(query(collection(db, "books"), where("periodId", "==", currentPeriod.id)));
+      const books = booksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (books.length === 0 || books.every(b => !b.votes?.length)) {
+        container.innerText = "No winner yet";
+        return;
+      }
+
+      const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
+
+      let details = {};
+      try {
+        const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
+        const data = await res.json();
+        if (data.docs && data.docs.length > 0) {
+          const doc = data.docs[0];
+          details.year = doc.first_publish_year || "Unknown";
+          details.pages = doc.number_of_pages_median || "Unknown";
+          details.description = doc.subtitle || doc.text?.slice(0, 200)?.join(" ") || "No description available";
+        }
+      } catch (err) {
+        console.error(err);
+        details = { year: "Unknown", pages: "Unknown", description: "No description available" };
+      }
+
+      const div = document.createElement("div");
+      div.className = "submission-card";
+      div.style.flexDirection = "column";
+      div.style.alignItems = "center";
+      div.innerHTML = `
+        <img src="${winner.coverUrl}" class="book-cover" style="width:150px;height:220px"/>
+        <div class="book-info" style="text-align:center; margin-top:0.5rem;">
+          <h3>${winner.title}</h3>
+          <p><strong>Author:</strong> ${winner.author}</p>
+          <p><strong>Year Published:</strong> ${details.year}</p>
+          <p><strong>Pages:</strong> ${details.pages}</p>
+          <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
+          <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    // On page load
+    window.addEventListener("DOMContentLoaded", async () => {
+      await fetchCurrentPeriod();
+      displayWinner();
+    });
+  </script>
 </head>
 <body>
   <!-- Navbar -->
@@ -24,52 +110,10 @@
     <h1>Welcome to the Book Club!</h1>
     <section id="latest-winner">
       <h2>Most Recent Winning Book</h2>
-      <div id="winner-details">
+      <div id="winnerDisplay">
         Loading...
       </div>
     </section>
   </main>
-
-  <script>
-    // Your Firebase config
-    const firebaseConfig = { 
-      apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
-      authDomain:"book-club-f42b1.firebaseapp.com", 
-      projectId:"book-club-f42b1", 
-      storageBucket:"book-club-f42b1.appspot.com", 
-      messagingSenderId:"85630091573", 
-      appId:"1:85630091573:web:427077f1351140fc278c7c" 
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    async function getLatestWinner() {
-      try {
-        // Assuming you have a 'votes' collection with a 'round' and 'winner' field
-        const roundsSnapshot = await db.collection('votes')
-          .orderBy('round', 'desc')
-          .limit(1)
-          .get();
-
-        if (!roundsSnapshot.empty) {
-          const latestRound = roundsSnapshot.docs[0].data();
-          document.getElementById('winner-details').innerHTML = `
-            <p><strong>Book Title:</strong> ${latestRound.winner}</p>
-            <p><strong>Round:</strong> ${latestRound.round}</p>
-          `;
-        } else {
-          document.getElementById('winner-details').textContent = "No voting rounds yet!";
-        }
-      } catch (error) {
-        console.error("Error fetching latest winner:", error);
-        document.getElementById('winner-details').textContent = "Error loading winner.";
-      }
-    }
-
-    // Load winner on page load
-    getLatestWinner();
-  </script>
 </body>
 </html>
