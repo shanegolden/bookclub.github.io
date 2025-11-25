@@ -6,8 +6,7 @@
   </div>
 
   <div class="navbar-right">
-    <button id="logoutBtn" class="btn logout-btn">Logout</button>
-    <!-- Login button will be injected here by JS -->
+    <!-- Login/Logout buttons will be injected here by JS -->
   </div>
 
   <div id="hamburgerMenu" class="hamburger-menu" style="display: none;">
@@ -20,15 +19,16 @@
 
 <style>
   .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     background: #4f46e5;
     color: white;
-    position: fixed;
-    width: 100%;
-    top: 0;
+    display: flex;
+    justify-content: space-between; /* left and right alignment */
+    align-items: center;
+    padding: 1rem 2rem;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
@@ -37,6 +37,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
   }
 
@@ -44,13 +45,6 @@
     font-size: 1.4rem;
   }
 
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  /* Hamburger button */
   .hamburger-btn {
     font-size: 1.5rem;
     background: none;
@@ -59,7 +53,12 @@
     cursor: pointer;
   }
 
-  /* Hamburger menu */
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
   .hamburger-menu {
     position: absolute;
     top: 60px;
@@ -89,24 +88,21 @@
     background: #e0e7ff;
   }
 
-  /* Active page highlight */
   .hamburger-menu a.active {
     font-weight: bold;
     color: #4f46e5;
   }
 
-  /* Logout button styling */
-  .logout-btn {
+  .logout-btn, #loginBtn {
     background: none;
     border: none;
     color: white;
     font-weight: bold;
     cursor: pointer;
+    text-decoration: none;
   }
 
-  a#loginBtn {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
+  #loginBtn:hover, .logout-btn:hover {
+    text-decoration: underline;
   }
 </style>
