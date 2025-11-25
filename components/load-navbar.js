@@ -1,3 +1,5 @@
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
 export async function loadNavbar(activePage, isAdmin = false) {
   const navbarContainer = document.getElementById("navbar");
   if (!navbarContainer) return;
@@ -14,7 +16,10 @@ export async function loadNavbar(activePage, isAdmin = false) {
   });
 
   // Show admin link if needed
-  if(isAdmin) navbarContainer.querySelector("#adminNavItem").style.display = "block";
+  if(isAdmin) {
+    const adminLink = navbarContainer.querySelector("#adminNavItem");
+    if(adminLink) adminLink.style.display = "block";
+  }
 
   // Update page title
   const pageTitleSpan = navbarContainer.querySelector("#pageTitle");
@@ -24,15 +29,20 @@ export async function loadNavbar(activePage, isAdmin = false) {
   const hamburgerBtn = navbarContainer.querySelector("#hamburgerBtn");
   const hamburgerMenu = navbarContainer.querySelector("#hamburgerMenu");
   hamburgerBtn.addEventListener("click", () => {
-    hamburgerMenu.style.display = hamburgerMenu.style.display === "none" ? "block" : "none";
+    hamburgerMenu.style.display = hamburgerMenu.style.display === "none" ? "flex" : "none";
   });
 
-  // Logout button (assumes auth is globally available)
+  // Logout button
   const logoutBtn = navbarContainer.querySelector("#logoutBtn");
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      window.location.href = "/login";
-    } catch (e) { console.error(e); }
-  });
+  if(logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        const auth = getAuth();
+        await signOut(auth);
+        window.location.href = "/login.html";
+      } catch (e) {
+        console.error("Logout failed:", e);
+      }
+    });
+  }
 }
