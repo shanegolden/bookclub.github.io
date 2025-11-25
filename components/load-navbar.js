@@ -15,7 +15,7 @@ export async function loadNavbar(activePage, isAdmin = false) {
     return;
   }
 
-  // Highlight the active page link
+  // Highlight active page
   navbarContainer.querySelectorAll("#hamburgerMenu a").forEach(a => {
     if (a.textContent.trim() === activePage) a.classList.add("active");
   });
@@ -39,37 +39,35 @@ export async function loadNavbar(activePage, isAdmin = false) {
     });
   }
 
-  // Firebase auth check
+  // Auth check
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     const logoutBtn = navbarContainer.querySelector("#logoutBtn");
+    const navbarRight = navbarContainer.querySelector(".navbar-right");
 
     if (user) {
-      // Logged in: show logout, hide log in
+      // Logged in
       if (logoutBtn) logoutBtn.style.display = "block";
-
       const loginBtn = navbarContainer.querySelector("#loginBtn");
       if (loginBtn) loginBtn.remove();
     } else {
-      // Logged out: hide logout, show login
+      // Logged out
       if (logoutBtn) logoutBtn.style.display = "none";
 
-      // Only add login button if it doesn't exist
-      if (!navbarContainer.querySelector("#loginBtn")) {
+      if (!navbarRight.querySelector("#loginBtn")) {
         const loginBtn = document.createElement("a");
         loginBtn.href = "./login.html";
         loginBtn.id = "loginBtn";
         loginBtn.textContent = "Log In";
-        loginBtn.style.marginLeft = "auto";
         loginBtn.style.color = "white";
         loginBtn.style.fontWeight = "bold";
         loginBtn.style.textDecoration = "none";
-        navbarContainer.querySelector(".navbar").appendChild(loginBtn);
+        navbarRight.appendChild(loginBtn);
       }
     }
   });
 
-  // Logout button click
+  // Logout click
   const logoutBtn = navbarContainer.querySelector("#logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
