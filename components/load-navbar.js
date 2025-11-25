@@ -1,11 +1,9 @@
-// load-navbar.js
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 export async function loadNavbar(activePage, isAdmin = false) {
   const navbarContainer = document.getElementById("navbar");
   if (!navbarContainer) return;
 
-  // Fetch navbar.html
   try {
     const resp = await fetch("./components/navbar.html");
     if (!resp.ok) throw new Error(`Failed to fetch navbar.html: ${resp.status}`);
@@ -17,9 +15,8 @@ export async function loadNavbar(activePage, isAdmin = false) {
     return;
   }
 
-  // Highlight active page
-  const pageLinks = navbarContainer.querySelectorAll("#hamburgerMenu a");
-  pageLinks.forEach(a => {
+  // Highlight the active page link
+  navbarContainer.querySelectorAll("#hamburgerMenu a").forEach(a => {
     if (a.textContent.trim() === activePage) a.classList.add("active");
   });
 
@@ -29,7 +26,7 @@ export async function loadNavbar(activePage, isAdmin = false) {
     if (adminLink) adminLink.style.display = "block";
   }
 
-  // Update page title in navbar
+  // Update page title
   const pageTitleSpan = navbarContainer.querySelector("#pageTitle");
   if (pageTitleSpan) pageTitleSpan.textContent = activePage;
 
@@ -42,42 +39,38 @@ export async function loadNavbar(activePage, isAdmin = false) {
     });
   }
 
+  // Firebase auth check
   const auth = getAuth();
-
-  // --- Logout / Log In logic ---
-  const logoutBtn = navbarContainer.querySelector("#logoutBtn");
-
   onAuthStateChanged(auth, (user) => {
+    const logoutBtn = navbarContainer.querySelector("#logoutBtn");
+
     if (user) {
-      // User logged in
+      // Logged in: show logout, hide log in
       if (logoutBtn) logoutBtn.style.display = "block";
 
-      // Remove any previous login button if it exists
-      const existingLoginBtn = navbarContainer.querySelector("#loginBtn");
-      if (existingLoginBtn) existingLoginBtn.remove();
+      const loginBtn = navbarContainer.querySelector("#loginBtn");
+      if (loginBtn) loginBtn.remove();
     } else {
-      // User not logged in
+      // Logged out: hide logout, show login
       if (logoutBtn) logoutBtn.style.display = "none";
 
-      // Only show "Log In" button on index.html
-      if (window.location.pathname.endsWith("/index.html") || window.location.pathname === "/") {
-        let loginBtn = navbarContainer.querySelector("#loginBtn");
-        if (!loginBtn) {
-          loginBtn = document.createElement("button");
-          loginBtn.id = "loginBtn";
-          loginBtn.textContent = "Log In";
-          loginBtn.className = "btn logout-btn"; // can reuse logout styling
-          navbarContainer.querySelector(".navbar-left").appendChild(loginBtn);
-
-          loginBtn.addEventListener("click", () => {
-            window.location.href = "./login.html";
-          });
-        }
+      // Only add login button if it doesn't exist
+      if (!navbarContainer.querySelector("#loginBtn")) {
+        const loginBtn = document.createElement("a");
+        loginBtn.href = "./login.html";
+        loginBtn.id = "loginBtn";
+        loginBtn.textContent = "Log In";
+        loginBtn.style.marginLeft = "auto";
+        loginBtn.style.color = "white";
+        loginBtn.style.fontWeight = "bold";
+        loginBtn.style.textDecoration = "none";
+        navbarContainer.querySelector(".navbar").appendChild(loginBtn);
       }
     }
   });
 
-  // Logout click
+  // Logout button click
+  const logoutBtn = navbarContainer.querySelector("#logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
