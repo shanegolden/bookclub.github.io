@@ -16,25 +16,19 @@
 </head>
 <body>
 
-<!-- Navbar container -->
 <div id="navbar"></div>
 
-<!-- Home content -->
 <div class="container">
   <h2>Most Recent Winning Book</h2>
   <div id="winnerDisplay" class="winner-display">Loading...</div>
 </div>
 
-<!-- Navbar JS -->
 <script type="module">
 import { loadNavbar } from './components/load-navbar.js';
-loadNavbar("Home", false); // Home active, no admin menu
-</script>
+loadNavbar("Home", false);
 
-<!-- Firebase + Winner JS -->
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, limit, onSnapshot, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const firebaseConfig = { 
   apiKey:"AIzaSyARFfiXUa27jTt2nfuStSGZL4HCCp5oPx0", 
@@ -48,65 +42,74 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let currentPeriod = null;
+const winnerContainer = document.getElementById("winnerDisplay");
 
-// Fetch the latest submission period
-async function fetchCurrentPeriod() {
-  const periodsSnap = await getDocs(collection(db, "submissionPeriods"));
-  const periods = periodsSnap.docs.map(d => ({id:d.id, ...d.data()}))
-    .sort((a,b)=>b.createdAt?.toMillis() - a.createdAt?.toMillis());
-  currentPeriod = periods[0] || null;
+// Step 1: Fetch the latest submission period
+async function fetchLatestPeriod() {
+  const periodsSnap = await getDocs(query(collection(db, "submissionPeriods"), orderBy("createdAt", "desc"), limit(1)));
+  const periods = periodsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return periods[0] || null;
 }
 
-// Display the winning book
-async function displayWinner() {
-  const container = document.getElementById("winnerDisplay");
-  container.innerHTML = "";
-
-  if (!currentPeriod) { container.innerText = "No submission periods yet."; return; }
-
-  const booksSnap = await getDocs(query(collection(db, "books"), where("periodId", "==", currentPeriod.id)));
-  const books = booksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  if (books.length === 0 || books.every(b => !b.votes?.length)) {
-    container.innerText = "No winner yet";
-    return;
+// Step 2: Display the winner
+async function showWinner(currentPeriod) {
+  if (!currentPeriod) { 
+    winnerContainer.innerText = "No submission periods yet."; 
+    return; 
   }
 
-  const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
+  const booksRef = collection(db, "books");
+  const booksQuery = query(booksRef, where("periodId", "==", currentPeriod.id));
 
-  let details = {};
-  try {
-    const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
-    const data = await res.json();
-    if (data.docs && data.docs.length > 0) {
-      const doc = data.docs[0];
-      details.year = doc.first_publish_year || "Unknown";
-      details.pages = doc.number_of_pages_median || "Unknown";
-      details.description = doc.subtitle || doc.text?.slice(0, 200)?.join(" ") || "No description available";
+  // Listen to books for this period in real-time
+  onSnapshot(booksQuery, async snapshot => {
+    const books = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    winnerContainer.innerHTML = "";
+
+    if (books.length === 0 || books.every(b => !b.votes?.length)) {
+      winnerContainer.innerText = "No winner yet";
+      return;
     }
-  } catch(err) { console.error(err); details = { year: "Unknown", pages: "Unknown", description: "No description available" }; }
 
-  const div = document.createElement("div");
-  div.className = "submission-card";
-  div.innerHTML = `
-    <img src="${winner.coverUrl}" class="book-cover"/>
-    <div class="book-info">
-      <h3>${winner.title}</h3>
-      <p><strong>Author:</strong> ${winner.author}</p>
-      <p><strong>Year Published:</strong> ${details.year}</p>
-      <p><strong>Pages:</strong> ${details.pages}</p>
-      <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
-      <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
-    </div>
-  `;
-  container.appendChild(div);
+    const winner = books.sort((a, b) => (b.votes?.length || 0) - (a.votes?.length || 0))[0];
+
+    // Fetch Open Library details
+    let details = {};
+    try {
+      const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(winner.title)}&author=${encodeURIComponent(winner.author)}&limit=1`);
+      const data = await res.json();
+      if (data.docs && data.docs.length > 0) {
+        const doc = data.docs[0];
+        details.year = doc.first_publish_year || "Unknown";
+        details.pages = doc.number_of_pages_median || "Unknown";
+        details.description = doc.subtitle || doc.text?.slice(0,200)?.join(" ") || "No description available";
+      }
+    } catch(err) {
+      console.error(err);
+      details = { year:"Unknown", pages:"Unknown", description:"No description available" };
+    }
+
+    const div = document.createElement("div");
+    div.className = "submission-card";
+    div.innerHTML = `
+      <img src="${winner.coverUrl}" class="book-cover"/>
+      <div class="book-info">
+        <h3>${winner.title}</h3>
+        <p><strong>Author:</strong> ${winner.author}</p>
+        <p><strong>Year Published:</strong> ${details.year}</p>
+        <p><strong>Pages:</strong> ${details.pages}</p>
+        <p style="font-size:0.9rem;"><strong>Description:</strong> ${details.description}</p>
+        <p style="margin-top:0.5rem;"><strong>Votes:</strong> ${winner.votes?.length || 0}</p>
+      </div>
+    `;
+    winnerContainer.appendChild(div);
+  });
 }
 
-// Initialize page
+// Initialize
 window.addEventListener("DOMContentLoaded", async () => {
-  await fetchCurrentPeriod();
-  displayWinner();
+  const currentPeriod = await fetchLatestPeriod();
+  showWinner(currentPeriod);
 });
 </script>
 
