@@ -293,6 +293,7 @@ async function displayWinner() {
     </div>
   `;
   container.appendChild(div);
+}
   
   // --- Update public winner document for unauthenticated reads ---
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -308,7 +309,7 @@ setDoc(doc(db, "public", "winner"), {
   periodId: currentPeriod.id,
   updatedAt: new Date()
 }).catch(err => console.error("Error updating public winner:", err));
-}
+  
 </script>
 </body>
 </html>
