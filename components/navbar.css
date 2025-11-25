@@ -21,13 +21,19 @@ header {
   cursor: pointer;
 }
 
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem; /* very tight spacing */
+}
+
 #logo {
-  margin-left: 1rem;
-  font-size: 1.5rem;
+  margin-left: 0; /* remove all extra margin */
+  font-size: 1.2rem;
 }
 
 #pageTitle {
-  margin-left: 1rem;
+  margin-left: 0.1rem; /* tiny space so it’s not touching the emoji */
   font-weight: bold;
   font-size: 1.1rem;
 }
