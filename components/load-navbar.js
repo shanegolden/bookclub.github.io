@@ -63,16 +63,24 @@ export async function loadNavbar(activePage, isAdmin = false) {
       // Logged out: show login button
       const loginBtn = document.createElement("a");
       loginBtn.href = "./login.html";
+      loginBtn.id = "loginBtn";
       loginBtn.textContent = "Log In";
       loginBtn.style.color = "white";
       loginBtn.style.fontWeight = "bold";
       loginBtn.style.textDecoration = "none";
+      
       navbarRight.appendChild(loginBtn);
 
+      // Homepage special layout
+      const isHomePage = window.location.pathname.endsWith("index.html") || window.location.pathname === "/";
       if (isHomePage) {
         navbarLeft.style.display = "none"; // hide hamburger+title
+        loginBtn.style.position = "absolute";
+        loginBtn.style.top = "1rem";
+        loginBtn.style.right = "2rem";
       } else {
         navbarLeft.style.display = "flex"; // show normal navbar on other pages
+        loginBtn.style.position = "static"; // reset
       }
     }
   });
