@@ -15,6 +15,11 @@ export async function loadNavbar(activePage, isAdmin = false) {
     return;
   }
 
+  const navbarLeft = navbarContainer.querySelector(".navbar-left");
+  const navbarRight = navbarContainer.querySelector(".navbar-right");
+  const hamburgerMenu = navbarContainer.querySelector("#hamburgerMenu");
+  const hamburgerBtn = navbarContainer.querySelector("#hamburgerBtn");
+
   // Highlight active page link
   navbarContainer.querySelectorAll("#hamburgerMenu a").forEach(a => {
     if (a.textContent.trim() === activePage) a.classList.add("active");
@@ -30,54 +35,44 @@ export async function loadNavbar(activePage, isAdmin = false) {
   const pageTitleSpan = navbarContainer.querySelector("#pageTitle");
   if (pageTitleSpan) pageTitleSpan.textContent = activePage;
 
-  // Hamburger menu toggle
-  const hamburgerBtn = navbarContainer.querySelector("#hamburgerBtn");
-  const hamburgerMenu = navbarContainer.querySelector("#hamburgerMenu");
+  // Hamburger toggle
   if (hamburgerBtn && hamburgerMenu) {
     hamburgerBtn.addEventListener("click", () => {
       hamburgerMenu.style.display = hamburgerMenu.style.display === "none" ? "flex" : "none";
     });
   }
 
-  // Auth check for login/logout
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
-    const navbarRight = navbarContainer.querySelector(".navbar-right");
-    const navbarLeft = navbarContainer.querySelector(".navbar-left");
-    navbarRight.innerHTML = ""; // clear first
+    navbarRight.innerHTML = ""; // clear buttons
 
     const isHomePage = window.location.pathname.endsWith("index.html") || window.location.pathname === "/";
 
     if (user) {
       // Logged in: show logout button
       const logoutBtn = document.createElement("button");
-      logoutBtn.className = "logout-btn";
       logoutBtn.textContent = "Logout";
+      logoutBtn.className = "logout-btn";
       logoutBtn.addEventListener("click", async () => {
-        try {
-          await signOut(auth);
-          window.location.href = "./login.html";
-        } catch (e) {
-          console.error("Logout failed:", e);
-        }
+        try { await signOut(auth); window.location.href = "./login.html"; }
+        catch(e){ console.error("Logout failed", e); }
       });
       navbarRight.appendChild(logoutBtn);
-
-      if (isHomePage) {
-        // On homepage, show full navbar for logged-in users
-        if (navbarLeft) navbarLeft.style.display = "flex";
-      }
+      navbarLeft.style.display = "flex"; // always show left for logged-in users
     } else {
       // Logged out: show login button
       const loginBtn = document.createElement("a");
       loginBtn.href = "./login.html";
-      loginBtn.id = "loginBtn";
       loginBtn.textContent = "Log In";
+      loginBtn.style.color = "white";
+      loginBtn.style.fontWeight = "bold";
+      loginBtn.style.textDecoration = "none";
       navbarRight.appendChild(loginBtn);
 
       if (isHomePage) {
-        // Hide hamburger menu/left items on homepage if logged out
-        if (navbarLeft) navbarLeft.style.display = "none";
+        navbarLeft.style.display = "none"; // hide hamburger+title
+      } else {
+        navbarLeft.style.display = "flex"; // show normal navbar on other pages
       }
     }
   });
