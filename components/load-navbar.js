@@ -1,4 +1,4 @@
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 export async function loadNavbar(activePage, isAdmin = false) {
   const navbarContainer = document.getElementById("navbar");
@@ -16,7 +16,8 @@ export async function loadNavbar(activePage, isAdmin = false) {
   }
 
   // Highlight active page
-  navbarContainer.querySelectorAll("#hamburgerMenu a").forEach(a => {
+  const pageLinks = navbarContainer.querySelectorAll("#hamburgerMenu a");
+  pageLinks.forEach(a => {
     if (a.textContent.trim() === activePage) a.classList.add("active");
   });
 
@@ -39,44 +40,12 @@ export async function loadNavbar(activePage, isAdmin = false) {
     });
   }
 
-  const auth = getAuth();
-  const navbarRight = navbarContainer.querySelector("#navbarRight");
-
-  onAuthStateChanged(auth, (user) => {
-    const logoutBtn = navbarContainer.querySelector("#logoutBtn");
-
-    if (user) {
-      // Logged in: show logout, hide login
-      if (logoutBtn) logoutBtn.style.display = "block";
-
-      const loginBtn = navbarContainer.querySelector("#loginBtn");
-      if (loginBtn) loginBtn.remove();
-    } else {
-      // Logged out: hide logout
-      if (logoutBtn) logoutBtn.style.display = "none";
-
-      // Add login button if it doesn't exist
-      if (!navbarContainer.querySelector("#loginBtn")) {
-        const loginBtn = document.createElement("a");
-        loginBtn.href = "./login.html";
-        loginBtn.id = "loginBtn";
-        loginBtn.textContent = "Log In";
-        navbarRight.appendChild(loginBtn);
-      }
-
-      // Special case: on homepage, hide hamburger menu
-      if (window.location.pathname.endsWith("index.html")) {
-        hamburgerBtn.style.display = "none";
-        if (hamburgerMenu) hamburgerMenu.style.display = "none";
-      }
-    }
-  });
-
   // Logout button click
   const logoutBtn = navbarContainer.querySelector("#logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
+        const auth = getAuth();
         await signOut(auth);
         window.location.href = "./login.html";
       } catch (e) {
